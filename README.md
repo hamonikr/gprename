@@ -36,9 +36,5 @@ curl -sL https://pkg.hamonikr.org/add-hamonikr.apt | sudo -E bash -
 sudo apt install -y gprename
 ```
 
-
-# Usage
- * 프로그램 > `마우스 휠 속도 설정` 실행
-
  # 이슈 또는 버그
  사용 중 문제를 발견하시면 root@hamonikr.org 또는 https://groups.google.com/forum/m/#!forum/hamonikr 에서 알려주세요.
