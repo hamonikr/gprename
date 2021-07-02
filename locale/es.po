@@ -1,0 +1,191 @@
+# Spanish translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "Archivo"
+
+msgid "Quit"
+msgstr "Salir"
+
+#msgid "_Options"
+#msgstr ""
+
+#msgid "Trim spaces"
+#msgstr ""
+
+msgid "Zero auto-fill"
+msgstr "Auto-relleno de ceros"
+
+#msgid "Automatic preview"
+#msgstr ""
+
+#msgid "Remember last directory"
+#msgstr ""
+
+#msgid "Show hidden files"
+#msgstr ""
+
+#msgid "Show path"
+#msgstr ""
+
+#msgid "Show contents of subdirectories"
+#msgstr ""
+
+#msgid "Fullscreen"
+#msgstr ""
+
+#msgid "Disable security check"
+#msgstr ""
+
+#msgid "Filter"
+#msgstr ""
+
+#msgid "View log"
+#msgstr ""
+
+msgid "_Help"
+msgstr "Ayuda"
+
+#msgid "Contents"
+#msgstr ""
+
+msgid "About"
+msgstr "Acerca de"
+
+msgid "Name"
+msgstr "Nombre de archivo"
+
+msgid "New name"
+msgstr "Nuevo nombre"
+
+msgid "Files"
+msgstr "Archivo"
+
+#msgid "Directory"
+#msgstr ""
+
+msgid "Directories"
+msgstr "Directorio"
+
+#msgid "Selected"
+#msgstr ""
+
+msgid "Case Change"
+msgstr "Mayúsculas / Minúsculas"
+
+msgid "ALL UPPERCASE"
+msgstr "TODO MAYÚSCULAS"
+
+msgid "all lowercase"
+msgstr "todo minúsculas"
+
+#msgid "Only the first letter"
+#msgstr ""
+
+msgid "Only The First Letter And After"
+msgstr "Solo Primeras Letras y Después De"
+
+msgid "Insert / Delete"
+msgstr "Insertar / Borrar"
+
+msgid "Insert"
+msgstr "Insertar"
+
+msgid "at position"
+msgstr "en posición"
+
+msgid "Delete between"
+msgstr "Borrar entre"
+
+msgid "and"
+msgstr "y"
+
+msgid "Replace / Remove"
+msgstr "Reemplazar / Quitar"
+
+msgid "Replace"
+msgstr "Reemplazar"
+
+msgid "with"
+msgstr "con"
+
+msgid "Case sensitive"
+msgstr "Atiende a MAYÚSCULAS / minúsculas."
+
+msgid "Regular expression"
+msgstr "Expresiones regulares"
+
+msgid "Numerical"
+msgstr "Numérico"
+
+msgid "Add numbers starting at"
+msgstr "Empezar en"
+
+msgid "and increment by"
+msgstr "y aumentar en"
+
+msgid "Insert before the numbers"
+msgstr "Insertar antes de los números"
+
+msgid "and after"
+msgstr "y despuésy después"
+
+#msgid "Keep existing names"
+#msgstr ""
+
+#msgid "Before the numbers"
+#msgstr ""
+
+#msgid "After the numbers"
+#msgstr ""
+
+#msgid "No"
+#msgstr ""
+
+#msgid "_Preview"
+#msgstr ""
+
+msgid "_Rename"
+msgstr "Aplicar"
+
+msgid "_Undo"
+msgstr "Deshacer"
+
+#msgid "Refre_sh"
+#msgstr ""
+
+#msgid "Cannot rename because it already exist."
+#msgstr ""
+
+#msgid "The log file is over 1M, you should clear it from the Options menu."
+#msgstr ""
+
+#msgid "Only show files or directories that contains"
+#msgstr ""
+
+#msgid "Clear"
+#msgstr ""
+
+#msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+#msgstr ""
+
+#msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+#msgstr ""
+
+#msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+#msgstr ""
+
+#msgid "To specify the end, use a negative number or a high number."
+#msgstr ""
+
+#msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+#msgstr ""

@@ -1,0 +1,90 @@
+gprename (20140325-1hamonikr1) jin; urgency=low
+
+  * Release for HamoniKR
+   - Add nemo actions for HamoniKR
+   - https://github.com/smurphos/nemo_actions_and_cinnamon_scripts
+
+ -- HamoniKR <pkg@hamonikr.org>  Fri, 02 Jul 2021 18:48:44 +0900
+
+gprename (20140325-1) unstable; urgency=low
+
+  * New upstream release (Closes: #693118)
+    - Fixed directory with dot Bug (Closes: #781182)
+  * debian/control:
+    - Updated Standard-Version
+    - Added desktop-file-utils to Build-Dependencies
+    - Updated Build-Dependencies for debhelper
+    - Removed Build-Dependency on quilt
+  * debian/compat:
+    - Changed compat level to v9
+  * debian/rules:
+    - Removed patch and unpatch targets as they are not needed anymore
+  * Switch to dpkg-source 3.0 (quilt) format
+  * Removed README.source
+  * Updated debian/copyright to copyright-format 1.0
+
+ -- Marvin Stark <marv@der-marv.de>  Tue, 05 May 2015 21:39:57 +0000
+
+gprename (2.6.6-1) unstable; urgency=low
+
+  * New upstream release
+  * Changed compat level to 8
+  * Removed gprename.desktop.diff patch, fixed in upstream 
+  * debian/control:
+    - Updated Standards-Version to 3.9.2
+    - Added ${misc:Depends} to Depends
+  * debian/rules:
+    - Removed dh-clean -k because it's deprecated 
+    - Added build-arch and build-indep targets
+  * debian/copyright:
+    - Updated path to GPL-3 license
+
+ -- Marvin Stark <marv@der-marv.de>  Mon, 19 Dec 2011 19:32:09 +0000
+
+gprename (2.6-1) unstable; urgency=low
+
+  * New Upstream Version
+  * debian/control:
+    - Updated Homepage field
+    - Updated Standard-Version
+  * gprename.desktop:
+    - Renamed gprename.desktop.patch to gprename.desktop.diff
+    - Removed the Encoding key it's now deprecated by the FreeDesktop standard
+  * debian/changelog:
+    - Removed waste whitespaces
+  * debian/rules:
+    - Moved code from binary-arch to binary-indep because architecture is all
+  * Added debian/README.source 
+  * Added debian/watch 
+  * Made package ready for source format 3.0 (quilt) (Closes: #485332)
+
+ -- Marvin Stark <marv@der-marv.de>  Fri, 11 Jul 2008 21:56:11 +0200
+
+gprename (2.5-2) unstable; urgency=low
+
+  * Fixed icon location in /usr/bin/gprename (Closes: #448824)
+
+ -- Marvin Stark <marv@der-marv.de>  Sun, 04 Nov 2007 22:18:27 +0000
+
+gprename (2.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added Homepage field to control file.
+
+ -- Marvin Stark <marv@der-marv.de>  Fri, 26 Oct 2007 23:57:16 +0000
+
+gprename (2.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Removed Debian patches (included in upstream version).
+  * Removed manpage (included in upstream version).
+  * Removed menu icon (included in upstream version).
+  * Added libglib-perl liblocale-gettext-perl and libintl-perl to Depends.
+
+ -- Marvin Stark <marv@der-marv.de>  Wed, 01 Aug 2007 14:00:23 +0000
+
+gprename (2.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #426582)
+
+ -- Marvin Stark <marv@der-marv.de>  Tue, 05 Apr 2007 16:40:15 +0200

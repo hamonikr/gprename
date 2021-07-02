@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=GPRename
+Name[ko]="파일/폴더명 일괄 변경"
+Comment=To rename files and directories in batch
+Comment[ko]=파일 또는 폴더명을 일괄 변경합니다
+Exec=gprename
+Icon=gprename
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=rename;filename;folder;이름변경;리네임;일괄변경;

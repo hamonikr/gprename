@@ -1,0 +1,195 @@
+# Swedish translation for GPRename
+# Copyright (C) 2012 Free Software Foundation, Inc.
+# This file is distributed under the same license as the GPRename package.
+# Daniel Nylander <po@danielnylander.se>, 2012.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2007-09-22 12:41+0100\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+
+msgid "_File"
+msgstr "_Arkiv"
+
+msgid "Quit"
+msgstr "Avsluta"
+
+msgid "_Options"
+msgstr "A_lternativ"
+
+msgid "Trim spaces"
+msgstr "Justera blanksteg"
+
+msgid "Zero auto-fill"
+msgstr "Fyll automatiskt på med nollor"
+
+msgid "Automatic preview"
+msgstr "Automatisk förhandsvisning"
+
+msgid "Remember last directory"
+msgstr "Kom ihåg senaste katalogen"
+
+msgid "Show hidden files"
+msgstr "Visa dolda filer"
+
+msgid "Show path"
+msgstr "Visa sökväg"
+
+msgid "Show contents of subdirectories"
+msgstr "Visa innehållet i underkataloger"
+
+msgid "Fullscreen"
+msgstr "Helskärm"
+
+msgid "Disable security check"
+msgstr "Inaktivera säkerhetskontroll"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "View log"
+msgstr "Visa logg"
+
+msgid "_Help"
+msgstr "_Hjälp"
+
+msgid "Contents"
+msgstr "Innehåll"
+
+msgid "About"
+msgstr "Om"
+
+msgid "Name"
+msgstr "Namn"
+
+msgid "New name"
+msgstr "Nytt namn"
+
+msgid "Files"
+msgstr "Filer"
+
+msgid "Directory"
+msgstr "Katalog"
+
+msgid "Directories"
+msgstr "Kataloger"
+
+msgid "Selected"
+msgstr "Markerad"
+
+msgid "Case Change"
+msgstr "Ändra skiftläge"
+
+msgid "ALL UPPERCASE"
+msgstr "ALLA VERSALER"
+
+msgid "all lowercase"
+msgstr "alla gemener"
+
+msgid "Only the first letter"
+msgstr "Endast första bokstaven"
+
+msgid "Only The First Letter And After"
+msgstr "Endast första bokstaven och efter"
+
+msgid "Insert / Delete"
+msgstr "Infoga / Ta bort"
+
+msgid "Insert"
+msgstr "Infoga"
+
+msgid "at position"
+msgstr "vid position"
+
+msgid "Delete between"
+msgstr "Ta bort mellan"
+
+msgid "and"
+msgstr "och"
+
+msgid "Replace / Remove"
+msgstr "Ersätt / Ta bort"
+
+msgid "Replace"
+msgstr "Ersätt"
+
+msgid "with"
+msgstr "med"
+
+msgid "Case sensitive"
+msgstr "Skiftlägeskänslig"
+
+msgid "Regular expression"
+msgstr "Reguljärt uttryck"
+
+msgid "Numerical"
+msgstr "Numeriska"
+
+msgid "Add numbers starting at"
+msgstr "Lägg till siffror som börjar på"
+
+msgid "and increment by"
+msgstr "och öka med"
+
+msgid "Insert before the numbers"
+msgstr "Infoga före siffrorna"
+
+msgid "and after"
+msgstr "och efter"
+
+msgid "Keep existing names"
+msgstr "Behåll befintliga namn"
+
+msgid "Before the numbers"
+msgstr "Före siffrorna"
+
+msgid "After the numbers"
+msgstr "Efter sifforna"
+
+msgid "No"
+msgstr "Nej"
+
+msgid "_Preview"
+msgstr "_Förhandsvisa"
+
+msgid "_Rename"
+msgstr "_Byt namn"
+
+msgid "_Undo"
+msgstr "_Ångra"
+
+msgid "Refre_sh"
+msgstr "_Uppdatera"
+
+msgid "Cannot rename because it already exist."
+msgstr "Kan inte byta namn på grund av att den redan finns."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Loggfilen är över 1M stor. Du bör tömma den via menyn Alternativ."
+
+msgid "Only show files or directories that contains"
+msgstr "Visa endast filer eller kataloger som innehåller"
+
+msgid "Clear"
+msgstr "Töm"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Justera blanksteg: Justera automatiskt dubbla blanksteg till endast ett och ta bort blanksteg i början eller slutet av namnen."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Fyll automatiskt på med nollor: För sektionen Numeriska, 1 kommer att namnges 01 om du går upp till 99 och 001 om du går upp till 999 och så vidare."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Inaktivera säkerhetskontroll: Om använd kan denna ta bort filer efter namnbyte. Använd denna endast när du byter skiftläge på en VFAT-partition (Windows)."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Använd ett negativt eller ett högt tal för att ange slutet."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Bakåtreferenser med reguljära uttryck kan inte användas eftersom $1 anses vara en Perl-variabel."

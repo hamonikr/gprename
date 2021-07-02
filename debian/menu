@@ -1,0 +1,3 @@
+?package(gprename):needs="X11" section="Applications/File Management"\
+  title="gprename" command="/usr/bin/gprename"\
+  icon="/usr/share/pixmaps/gprename/gprename_debian_menu_icon.xpm"

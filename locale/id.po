@@ -1,0 +1,191 @@
+# Indonesian translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_File"
+
+msgid "Quit"
+msgstr "Keluar"
+
+msgid "_Options"
+msgstr "Pi_lihan-pilihan"
+
+msgid "Trim spaces"
+msgstr "Rapikan spasi ganda, permulaan dan akhir"
+
+msgid "Zero auto-fill"
+msgstr "Nol otomatis-isi"
+
+msgid "Automatic preview"
+msgstr "Preview otomatis"
+
+#msgid "Remember last directory"
+#msgstr ""
+
+#msgid "Show hidden files"
+#msgstr ""
+
+msgid "Show path"
+msgstr "Tunjukkan path"
+
+msgid "Show contents of subdirectories"
+msgstr "Perlihatkan isi dari subdirektori"
+
+msgid "Fullscreen"
+msgstr "Satu layar penuh"
+
+msgid "Disable security check"
+msgstr "Hilangkan cek keamanan"
+
+msgid "Filter"
+msgstr "Saring"
+
+msgid "View log"
+msgstr "Lihat log"
+
+msgid "_Help"
+msgstr "_Bantuan"
+
+msgid "Contents"
+msgstr "Tips"
+
+msgid "About"
+msgstr "Tentang"
+
+msgid "Name"
+msgstr "Nama"
+
+msgid "New name"
+msgstr "Nama baru"
+
+msgid "Files"
+msgstr "File-file"
+
+#msgid "Directory"
+#msgstr ""
+
+msgid "Directories"
+msgstr "Direktori-direktori"
+
+#msgid "Selected"
+#msgstr ""
+
+msgid "Case Change"
+msgstr "Huruf besar/kecil"
+
+msgid "ALL UPPERCASE"
+msgstr "SEMUA HURUF BESAR"
+
+msgid "all lowercase"
+msgstr "semua huruf kecil"
+
+msgid "Only the first letter"
+msgstr "Hanya Huruf Pertama"
+
+msgid "Only The First Letter And After"
+msgstr "Hanya Huruf Pertama Dan Setelahnya"
+
+msgid "Insert / Delete"
+msgstr "Sisipkan / Hapuskan"
+
+msgid "Insert"
+msgstr "Sisipkan"
+
+msgid "at position"
+msgstr "pada posisi"
+
+msgid "Delete between"
+msgstr "Hapus antara"
+
+msgid "and"
+msgstr "dan"
+
+msgid "Replace / Remove"
+msgstr "Gantikan / Buang"
+
+msgid "Replace"
+msgstr "Ganti"
+
+msgid "with"
+msgstr "dengan"
+
+msgid "Case sensitive"
+msgstr "Huruf besar/kecil diperhatikan"
+
+msgid "Regular expression"
+msgstr "Regular expression"
+
+msgid "Numerical"
+msgstr "Nomor"
+
+msgid "Add numbers starting at"
+msgstr "Tambah nomor mulai dari"
+
+msgid "and increment by"
+msgstr "dan pertambahan dengan"
+
+msgid "Insert before the numbers"
+msgstr "Sisipkan sebelum nomer"
+
+msgid "and after"
+msgstr "dan setelah"
+
+msgid "Keep existing names"
+msgstr "Tetap mempertahankan nama"
+
+msgid "Before the numbers"
+msgstr "Sebelum nomer"
+
+msgid "After the numbers"
+msgstr "Setelah nomer"
+
+msgid "No"
+msgstr "Tidak"
+
+msgid "_Preview"
+msgstr "_Preview"
+
+msgid "_Rename"
+msgstr "Pe_namaan ulang"
+
+msgid "_Undo"
+msgstr "_Tidak jadi mengerjakan"
+
+msgid "Refre_sh"
+msgstr "Penye_garan"
+
+msgid "Cannot rename because it already exist."
+msgstr "Tidak dapat menamai ulang karena itu sudah ada."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "File log lebih dari 1M, anda diharuskan membersihkannya lewat menu Pilihan-pilihan."
+
+msgid "Only show files or directories that contains"
+msgstr "Hanya memperlihatkan file atau direktori yang memuat"
+
+msgid "Clear"
+msgstr "Bersihkan"
+
+#msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+#msgstr ""
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Nol otomatis-isi: Untuk bagian Nomor, 1 akan dinamai 01 jika anda sampai pada 99 dan 001 jika anda sampai pada 999 dan seterusnya."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Hilangkan cek keamanan: Jika dipakai, ini dapat menghapus file setelah penamaan ulang, pakailah ini hanya saat anda menamai ulang pada partisi VFAT (Windows)."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Untuk mencirikan akhir, pakailah nomor negatif atau nomor yang lebih tinggi."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Backreferences dengan Regular expression tidak dapat dipakai karena $1 mungkin merupakan sebuah variabel Perl."

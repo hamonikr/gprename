@@ -1,0 +1,191 @@
+# Brazilian Portuguese translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Arquivo"
+
+msgid "Quit"
+msgstr "Sair"
+
+msgid "_Options"
+msgstr "_Opções"
+
+msgid "Trim spaces"
+msgstr "Retirar espaço no início e no fim"
+
+msgid "Zero auto-fill"
+msgstr "Preencher automaticamente com zeros"
+
+msgid "Automatic preview"
+msgstr "Visualização automática"
+
+msgid "Remember last directory"
+msgstr "Lembrar último diretório"
+
+msgid "Show hidden files"
+msgstr "Mostrar aquivos ocultos"
+
+msgid "Show path"
+msgstr "Mostrar o caminho"
+
+msgid "Show contents of subdirectories"
+msgstr "Mostrar conteúdo dos subdiretórios"
+
+msgid "Fullscreen"
+msgstr "Tela cheia"
+
+msgid "Disable security check"
+msgstr "Desabilitar a verificação de segurança"
+
+msgid "Filter"
+msgstr "Filtro"
+
+msgid "View log"
+msgstr "Ver o log"
+
+msgid "_Help"
+msgstr "A_juda"
+
+msgid "Contents"
+msgstr "Dicas"
+
+msgid "About"
+msgstr "Sobre"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "New name"
+msgstr "Novo nome"
+
+msgid "Files"
+msgstr "Arquivos"
+
+msgid "Directory"
+msgstr "Diretório"
+
+msgid "Directories"
+msgstr "Diretórios"
+
+msgid "Selected"
+msgstr "Selecionado"
+
+msgid "Case Change"
+msgstr "Maiúsculas / Minúsculas"
+
+msgid "ALL UPPERCASE"
+msgstr "TUDO EM MAIÚSCULAS"
+
+msgid "all lowercase"
+msgstr "tudo em minúsculas"
+
+msgid "Only the first letter"
+msgstr "Só a primeira letra"
+
+msgid "Only The First Letter And After"
+msgstr "Só a Primeira Letra e Depois de"
+
+msgid "Insert / Delete"
+msgstr "Inserir / Apagar"
+
+msgid "Insert"
+msgstr "Inserir"
+
+msgid "at position"
+msgstr "na posição"
+
+msgid "Delete between"
+msgstr "Apagar entre"
+
+msgid "and"
+msgstr "e"
+
+msgid "Replace / Remove"
+msgstr "Substituir / Apagar"
+
+msgid "Replace"
+msgstr "Substituir"
+
+msgid "with"
+msgstr "com"
+
+msgid "Case sensitive"
+msgstr "Diferenciar maiúsculas e minúsculas"
+
+msgid "Regular expression"
+msgstr "Expressão regular"
+
+msgid "Numerical"
+msgstr "Numérico"
+
+msgid "Add numbers starting at"
+msgstr "Começar de"
+
+msgid "and increment by"
+msgstr "e incrementar de"
+
+msgid "Insert before the numbers"
+msgstr "Inserir antes os números"
+
+msgid "and after"
+msgstr "e depois"
+
+msgid "Keep existing names"
+msgstr "Manter os nomes existentes"
+
+msgid "Before the numbers"
+msgstr "Antes dos números"
+
+msgid "After the numbers"
+msgstr "Depois dos números"
+
+msgid "No"
+msgstr "Não"
+
+msgid "_Preview"
+msgstr "_Visualizar"
+
+msgid "_Rename"
+msgstr "A_plicar"
+
+msgid "_Undo"
+msgstr "_Desfazer"
+
+msgid "Refre_sh"
+msgstr "Atuali_zar"
+
+msgid "Cannot rename because it already exist."
+msgstr "Não é possível renomear porque o nome já existe."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "O arquivo de log é maior que 1M, você pode limpá-lo no menu Opções."
+
+msgid "Only show files or directories that contains"
+msgstr "Mostra somente os arquivos e diretórios que contenham"
+
+msgid "Clear"
+msgstr "Limpar"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Limpar espaços: Substitui automaticamente espaços duplos por espaços simples e remove espaços no início e no fim dos nomes."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Preencher automaticamente com zeros: Na seção Numérico, 1 será renomeado 01 se você for até 99 e 001 se você for até 999 etc."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Desabilitar a verificação de segurança: Se for usada, os arquivos podem ser apagados após serem renomeados. Somente use isso quando você renomear maiúsculas ou minúsculas em uma partição VFAT (Windows)."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Para especificar o fim, use um número negativo ou um número elevado."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Referências anteriores com expressões regulares não podem ser usadas, já que $1 é considerada como uma variável Perl."

@@ -1,0 +1,54 @@
+#!/usr/bin/make -f
+
+build: build-stamp
+build-arch: build
+build-indep: build
+
+build-stamp:
+	dh_testdir
+	touch build-stamp
+
+clean:
+	rm -f patches
+	dh_testdir
+	dh_testroot
+	rm -rf $(CURDIR)/debian/.pc
+	rm -f patch-stamp
+	rm -f build-stamp
+	rm -f patch-stamp
+	dh_clean
+
+	make clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean
+	dh_installdirs
+
+	# Install GPRename.
+	make PREFIX=/usr DESTDIR=$(CURDIR)/debian/gprename/usr install
+
+binary-indep: build install
+	# Fix gprename.desktop file.
+	#cp -f build/gprename.desktop debian/gprename/usr/share/applications/gprename.desktop
+	# Add debian menu icon
+	install -d $(CURDIR)/debian/gprename/usr/share/pixmaps/gprename
+	cp $(CURDIR)/icon/gprename_debian_menu_icon.xpm $(CURDIR)/debian/gprename/usr/share/pixmaps/gprename/gprename_debian_menu_icon.xpm
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installmenu
+	dh_compress
+	dh_fixperms
+	dh_perl
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: build install
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install

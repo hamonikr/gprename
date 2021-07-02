@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gconfentryfile>
+  <entrylist base="/apps/nautilus-actions/configurations/b7475e1f-c752-4883-8109-b1378aeb0fb3">
+    <entry>
+      <key>type</key>
+      <value>
+        <string>Action</string>
+      </value>
+    </entry>
+    <entry>
+      <key>items</key>
+      <value>
+        <list type="string">
+          <value>
+            <string>profile-zero</string>
+          </value>
+        </list>
+      </value>
+    </entry>
+    <entry>
+      <key>icon</key>
+      <value>
+        <string>/usr/local/share/pixmaps/gprename/gprename_nautilus-action.png</string>
+      </value>
+    </entry>
+    <entry>
+      <key>tooltip</key>
+      <value>
+        <string>Batch rename files or folders</string>
+      </value>
+    </entry>
+    <entry>
+      <key>toolbar-label</key>
+      <value>
+        <string>GPRename</string>
+      </value>
+    </entry>
+    <entry>
+      <key>label</key>
+      <value>
+        <string>GPRename</string>
+      </value>
+    </entry>
+    <entry>
+      <key>profile-zero/isdir</key>
+      <value>
+        <bool>true</bool>
+      </value>
+    </entry>
+    <entry>
+      <key>profile-zero/parameters</key>
+      <value>
+        <string>%M</string>
+      </value>
+    </entry>
+    <entry>
+      <key>profile-zero/path</key>
+      <value>
+        <string>/usr/local/bin/gprename</string>
+      </value>
+    </entry>
+    <entry>
+      <key>profile-zero/desc-name</key>
+      <value>
+        <string>GPRename</string>
+      </value>
+    </entry>
+  </entrylist>
+</gconfentryfile>

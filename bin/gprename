@@ -1,0 +1,1532 @@
+#!/usr/bin/perl
+
+# GPRename is a complete batch renamer for files and directories.
+
+# GPRename Copyright (C) 2014 gprename-users@lists.sourceforge.net
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License or
+# any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# file COPYING that came with this software for details.
+
+# Home Page                        : http://gprename.sourceforge.net
+# Wikipedia                        : http://en.wikipedia.org/wiki/GPRename
+# Subversion Web Browsing          : http://gprename.svn.sourceforge.net/viewvc/gprename
+# Subversion Manual                : http://svnbook.red-bean.com/
+# GTK2-Perl FAQ                    : http://live.gnome.org/GTK2-Perl/FrequentlyAskedQuestions
+# GTK2-Perl Tutorials              : http://gtk2-perl.sourceforge.net/doc
+# GTK2-Perl POD                    : http://gtk2-perl.sourceforge.net/doc/pod/index.html
+# Makefile tutorial                : http://mrbook.org/tutorials/make/
+# GNOME Human Interface Guidelines : http://developer.gnome.org/projects/gup/hig/2.0/index.html
+# Linux Filesystem Hierarchy       : http://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/usr.html
+# Tutorial on gettext              : http://cpan.uwinnipeg.ca/htdocs/gettext/README.html
+# Gnu gettext                      : http://www.gnu.org/software/gettext/
+# .desktop specification           : http://www.freedesktop.org/wiki/Howto_desktop_files/
+
+# To create a gprename.po template file :
+# cd bin
+# xgettext --from-code=UTF-8 -o gprename.po --no-wrap --language=Perl gprename
+
+# To start GPRename with another language :
+# LANGUAGE=fr gprename
+
+# How-to make a timer (debug purpose) :
+# use Time::HiRes qw(gettimeofday tv_interval);
+# my $timer1=0;
+# my $timer2=0;
+# if ( $debug == 1 ) { print "\nentering preview\n"; $timer1 = [gettimeofday]; }
+# if ( $debug == 1 ) { print "leaving preview\n"; $timer2 = [gettimeofday]; printf "time : %.3fs\n", tv_interval($timer1, $timer2);}
+
+
+######################################################################
+# Initialisation                                                     #
+######################################################################
+
+use Gtk2 -init;
+use File::Spec::Functions;    # for the tree
+use Cwd;                      # to get the current directory
+use Encode qw(decode encode); # to handle accents, with the encode and decode function
+use Fcntl ':flock';           # for the flock function in &read_settings
+use strict;                   # require variables to be declared before using them and distrust barewords
+use warnings;                 # print warning messages on the command line
+use Glib qw/TRUE FALSE/;      # to use the bareword TRUE and FALSE
+use utf8;                     # Because this file is in UTF8 and because we're using hardcoded accent in Help/About
+use Gtk2::Pango;              # To use text markup in TextView
+use POSIX;                    # for setlocale()
+use Locale::gettext;          # for l18n
+use Gtk2::Gdk::Keysyms;       # for keyboard shortcuts
+
+# set the locale
+setlocale(LC_ALL, '');
+bindtextdomain( 'gprename', '@INSTALLDIR@/share/locale');
+textdomain( 'gprename' );
+
+# Change the font to courier new for the Tree and the SimpleList
+Gtk2::Rc->parse_string(<<__);
+style 'my_text' { font_name ='courier new' }
+widget '*TreeView' style 'my_text'
+__
+
+# Declaration of global variables
+my $setting_file = "$ENV{'HOME'}/.config/gprename/gprename";
+my $log_file = "$ENV{'HOME'}/.config/gprename/gprename_log";
+if ( ! -e "$ENV{'HOME'}/.config" ) { `mkdir "$ENV{'HOME'}/.config"`; }
+if ( ! -e "$ENV{'HOME'}/.config/gprename" ) { `mkdir "$ENV{'HOME'}/.config/gprename"`; }
+if ( ! -e $log_file ) { `touch $log_file`; }
+our %langs;                   # Hash of all the different languages
+my %settings;                 # Hash of all the different options that can be saved 
+my @undo_oldname=();          # Hold a list of all the names renamed so that it can be undo
+my @undo_newname=();
+my $max_length_undo_old=0;    # Hold the biggest length of the old names, the log needs it
+my $max_length_undo_new=0;    # Hold the biggest length of the new names, the log needs it
+my $undo_path;                # Hold the path that was just renamed
+my $showpath=0;               # For the option Show path
+my $recursive=0;              # For the option Show recursive
+my $security=1;               # For the option Disable security
+my $filter='';                # For the option Filter
+my $exist=0;                  # For security check, if a name already exist
+my $status_bar_files=0;
+my $status_bar_dirs=0;
+my $status_bar_selected=0;
+my $str_gprename_version='5';
+
+# Hold a list of the Name and New Name column of files or directories
+# These are filled when calling &preview
+my @column_name=();
+my @column_new_name=();
+
+# Load settings file "~/.gprename"
+$settings{'trim_spaces'}        = TRUE;
+$settings{'auto_preview'}       = 0;
+$settings{'zero_autofill'}      = TRUE;
+$settings{'fullscreen'}         = 0;
+$settings{'width'}              = 640;
+$settings{'height'}             = 480;
+$settings{'security'}           = 0;
+$settings{'hpaned_width'}       = 200;
+$settings{'show_hidden_files'}  = 0;
+&read_settings;
+
+
+######################################################################
+# Main window                                                        #
+######################################################################
+
+# Create a window
+my $window = new Gtk2::Window( 'toplevel' );
+$window->set_position( 'none' );
+$window->set_title( 'GPRename' );
+$window->resize( $settings{'width'}, $settings{'height'} );
+$window->signal_connect( 'delete_event', \&quit );
+$window->show();
+
+my $accel_group = new Gtk2::AccelGroup;
+$window->add_accel_group( $accel_group );
+
+# Set the window icon
+my $icon = '@INSTALLDIR@/share/icons/gprename.png';
+my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $icon );
+$window->set_icon( $pixbuf );
+
+# Create a vertical main pane
+my $main_paned = new Gtk2::VPaned();
+$window->add( $main_paned );
+
+# Create a vbox for menubar and pane
+my $top_vbox = new Gtk2::VBox( FALSE, 0 );
+$main_paned->pack1( $top_vbox, TRUE, TRUE );
+
+
+######################################################################
+# Menubar                                                            #
+######################################################################
+
+# Create the menubar
+my $menubar = new Gtk2::MenuBar();
+$top_vbox->pack_start( $menubar, FALSE, FALSE, 0 );
+
+# Menu : File
+my $file_mm = new Gtk2::MenuItem( decode('utf8',gettext('_File')) );
+$menubar->append( $file_mm );
+my $file_menu = new Gtk2::Menu();
+$file_mm->set_submenu( $file_menu );
+
+# File - Quit
+my $quit_mi = new Gtk2::MenuItem( decode('utf8',gettext('Quit')) );
+$file_menu->append($quit_mi);
+$quit_mi->signal_connect( 'activate', \&quit );
+$quit_mi->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Q}, ['control-mask'], ['visible'] );
+
+# Menu : Options
+my $options_mi = new Gtk2::MenuItem( decode('utf8',gettext('_Options')) );
+$menubar->append( $options_mi );
+my $options_menu = new Gtk2::Menu();
+$options_mi->set_submenu( $options_menu );
+
+# Options - Automatically trim spaces at the beginning
+my $trim_spaces_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Trim spaces')) );
+if ( $settings{'trim_spaces'} ) { $trim_spaces_rmi->set_active( TRUE ); }
+$trim_spaces_rmi->signal_connect( 'activate', \&options_trim_spaces );
+
+# Options - Zero auto-fill
+my $zero_autofill_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Zero auto-fill')) );
+if ( $settings{'zero_autofill'} ) { $zero_autofill_rmi->set_active( TRUE ); }
+$zero_autofill_rmi->signal_connect( 'activate', \&options_zero_autofill );
+
+# Options - Automatic preview
+my $auto_preview_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Automatic preview')) );
+if ( $settings{'auto_preview'} ) { $auto_preview_rmi->set_active( TRUE  ); }
+$auto_preview_rmi->signal_connect( 'activate', \&options_auto_preview );
+
+# Options - Remember last directory
+my $remember_last_directory_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Remember last directory')) );
+if ( $settings{'remember_last_directory'} ) { $remember_last_directory_rmi->set_active( TRUE ); }
+$remember_last_directory_rmi->signal_connect( 'activate', \&options_remember_last_directory );
+
+# Options - Show hidden files
+my $show_hidden_files_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show hidden files')) );
+if ( $settings{'show_hidden_files'} ) { $show_hidden_files_rmi->set_active( TRUE ); }
+$show_hidden_files_rmi->signal_connect( 'activate', \&options_show_hidden_files );
+
+# Options - Show Path
+my $show_path_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show path')) );
+$show_path_rmi->signal_connect( 'activate', \&options_show_path );
+
+# Options - Recursive renaming
+my $recursive_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show contents of subdirectories')) );
+$recursive_rmi->signal_connect( 'activate', \&options_recursive );
+
+# Options - Fullscreen
+my $fullscreen_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Fullscreen')) );
+if ( $settings{'fullscreen'} ) { $fullscreen_rmi->set_active( TRUE ); $window->fullscreen; }
+$fullscreen_rmi->signal_connect( 'activate', \&options_fullscreen );
+
+# Options - Disable security check
+my $security_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Disable security check')) );
+$security_rmi->signal_connect( 'activate', \&options_security );
+
+# Options - Filter
+my $filter_mi = new Gtk2::MenuItem( decode('utf8',gettext('Filter')) . '...' );
+$filter_mi->signal_connect( 'activate', \&options_filter );
+
+# Options - View Log
+my $view_log_mi = new Gtk2::MenuItem( decode('utf8',gettext('View log')) . '...' );
+$view_log_mi->signal_connect( 'activate', \&options_view_log );
+
+$options_menu->append( $trim_spaces_rmi );
+$options_menu->append( $zero_autofill_rmi );
+$options_menu->append( $auto_preview_rmi );
+$options_menu->append( $remember_last_directory_rmi );
+#$options_menu->append( $recursive_rmi );
+$options_menu->append( $show_hidden_files_rmi );
+$options_menu->append( $show_path_rmi );
+$options_menu->append( $fullscreen_rmi );
+$options_menu->append( $security_rmi );
+$options_menu->append( Gtk2::SeparatorMenuItem->new() );
+$options_menu->append( $filter_mi );
+$options_menu->append( Gtk2::SeparatorMenuItem->new() );
+$options_menu->append( $view_log_mi );
+
+# Menu : Help
+my $help_mm = new Gtk2::MenuItem( decode('utf8',gettext('_Help')) );
+$menubar->append($help_mm);
+my $help_menu = new Gtk2::Menu();
+$help_mm->set_submenu($help_menu);
+
+# Help - Contents
+my $contents_mi = new Gtk2::MenuItem( decode('utf8',gettext('Contents')) );
+$help_menu->append($contents_mi);
+$contents_mi->signal_connect( 'activate', \&help_contents );
+
+# Help - About
+my $about_mi = new Gtk2::MenuItem( decode('utf8',gettext('About')) );
+$help_menu->append($about_mi);
+$about_mi->signal_connect( 'activate', \&help_about );
+
+
+######################################################################
+# Tree and files/directories list                                    #
+######################################################################
+
+# Create the list of Files
+my $sw_filelist = new Gtk2::ScrolledWindow( undef, undef );
+$sw_filelist->set_policy( 'automatic', 'automatic' );
+my $ls_files = Gtk2::ListStore->new( qw(Glib::String), qw(Glib::String) );
+my $tv_files = Gtk2::TreeView->new( $ls_files );
+$tv_files->set_rules_hint ( TRUE ); # property to draw rows in alternate colors
+$tv_files->set_headers_visible ( TRUE );
+$tv_files->append_column ( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
+$tv_files->append_column ( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 1 ) );
+$tv_files->get_column(0)->set_resizable ( TRUE );
+$tv_files->get_column(1)->set_resizable ( TRUE );
+$tv_files->get_column(0)->set_title( decode('utf8',gettext('Name')) );
+$tv_files->get_column(1)->set_title( decode('utf8',gettext('New name')) );
+$tv_files->get_selection->signal_connect( 'changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$tv_files->get_selection->set_mode( 'multiple' );
+$sw_filelist->add( $tv_files );
+
+# Create the list of Directories
+my $sw_dirlist = new Gtk2::ScrolledWindow( undef, undef );
+$sw_dirlist->set_policy( 'automatic', 'automatic' );
+my $ls_dirs = Gtk2::ListStore->new( qw(Glib::String), qw(Glib::String) );
+my $tv_dirs = Gtk2::TreeView->new( $ls_dirs );
+$tv_dirs->set_rules_hint( TRUE ); # property to draw rows in alternate colors
+$tv_dirs->set_headers_visible( TRUE );
+$tv_dirs->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
+$tv_dirs->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 1 ) );
+$tv_dirs->get_column(0)->set_resizable( TRUE );
+$tv_dirs->get_column(1)->set_resizable( TRUE );
+$tv_dirs->get_column(0)->set_title( decode('utf8',gettext('Name')) );
+$tv_dirs->get_column(1)->set_title( decode('utf8',gettext('New name')) );
+$tv_dirs->get_selection->signal_connect( 'changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$tv_dirs->get_selection->set_mode( 'multiple' );
+$sw_dirlist->add( $tv_dirs );
+
+# Create the Notebook and put the Files and Directories list in it
+my $file_dir_notebook = new Gtk2::Notebook();
+$file_dir_notebook->append_page( $sw_filelist, decode('utf8',gettext('Files')) );
+$file_dir_notebook->append_page( $sw_dirlist,  decode('utf8',gettext('Directories')) );
+
+$file_dir_notebook->set_current_page (0);
+$file_dir_notebook->signal_connect_after( 'switch-page', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+
+# Create the Tree
+my $sw_tree = Gtk2::ScrolledWindow->new;
+$sw_tree->set_policy( 'automatic', 'automatic' );
+my $ts_tree = Gtk2::TreeStore->new( qw(Glib::String) );
+my $tv_tree = Gtk2::TreeView->new( $ts_tree );
+my $iter = $ts_tree->append( undef );
+$ts_tree->set( $iter, 0 => File::Spec->rootdir() );
+$tv_tree->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
+$tv_tree->set_headers_visible( FALSE );
+$sw_tree->add_with_viewport( $tv_tree );
+$tv_tree->signal_connect( 'row_expanded',   \&populate_tree    );
+$tv_tree->signal_connect( 'cursor_changed', \&populate_listing );
+
+# Add only one item in the tree, anything, and open it up, this will call the populate_tree function
+$ts_tree->set( $ts_tree->append( $tv_tree->get_model->get_iter_first ), 0, 'anything' );
+$tv_tree->expand_to_path( $tv_tree->get_model->get_path( $tv_tree->get_model->get_iter_first ) );
+
+# Create an HPaned and put the Tree and Notebook in it
+my $hpaned = Gtk2::HPaned->new; 
+$top_vbox->pack_end( $hpaned, TRUE, TRUE, 2 );
+$hpaned->pack1( $sw_tree, TRUE, TRUE );
+$hpaned->pack2( $file_dir_notebook, FALSE, TRUE );
+$hpaned->set_position( $settings{'hpaned_width'} );
+$hpaned->child1_resize( 0 );
+
+######################################################################
+# Create manipulation items                                          #
+######################################################################
+
+# Create a vbox for menubar and pane
+my $bottom_vbox = new Gtk2::VBox( FALSE, 2);
+$main_paned->pack2( $bottom_vbox, FALSE, TRUE );
+
+my $status_bar = new Gtk2::Label( '' );
+$status_bar->set_justify( 'left' );
+$bottom_vbox->pack_start( $status_bar, TRUE, TRUE, 0 );
+
+my $table = new Gtk2::Table( 1, 2, FALSE );
+$bottom_vbox->pack_end( $table, FALSE, FALSE, 2);
+
+my $notebook = new Gtk2::Notebook();
+$notebook->set_current_page (0);
+$table->attach_defaults( $notebook, 0, 1, 0, 1 );
+$notebook->signal_connect_after( 'switch-page', sub { if ( $settings{'auto_preview'} ) { &preview; } } );
+
+
+######################################################################
+# Case change                                                        #
+######################################################################
+
+my $case_hbox1 = new Gtk2::HBox( FALSE, 4 );
+my $case_hbox2 = new Gtk2::HBox( FALSE, 4 );
+my $case_vbox1 = new Gtk2::VBox( FALSE, 4 );
+my $case_vbox2 = new Gtk2::VBox( FALSE, 4 );
+$notebook->append_page( $case_hbox1, decode('utf8',gettext('Case Change')) );
+
+my $case_all_up_radio     = new Gtk2::RadioButton( undef, decode('utf8',gettext('ALL UPPERCASE')) );
+my $case_all_lo_radio     = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('all lowercase')) );
+my $case_only_first_radio = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('Only the first letter')) );
+my $case_first_radio      = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('Only The First Letter And After')) );
+
+my $case_first_after_entry = Gtk2::Entry->new_with_max_length(254);
+$case_first_after_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $case_first_after_entry->get_position+1;} );
+$case_first_after_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $case_first_after_entry->get_position+1;} );
+$case_first_after_entry->set_text(' _-\([');
+$case_first_after_entry->set_width_chars( 8 );
+
+$case_all_up_radio    ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$case_all_lo_radio    ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$case_only_first_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$case_first_radio     ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+
+$case_hbox1->pack_start( $case_vbox1,             FALSE, TRUE, 4 );
+$case_hbox1->pack_start( $case_vbox2,             FALSE, TRUE, 4 );
+$case_vbox1->pack_start( $case_all_up_radio,      FALSE, TRUE, 4 );
+$case_vbox1->pack_start( $case_all_lo_radio,      FALSE, TRUE, 4 );
+$case_vbox2->pack_start( $case_only_first_radio,  FALSE, TRUE, 4 );
+$case_hbox2->pack_start( $case_first_radio,       FALSE, TRUE, 0 );
+$case_hbox2->pack_start( $case_first_after_entry, FALSE, TRUE, 0 );
+$case_vbox2->pack_start( $case_hbox2,             FALSE, TRUE, 4 );
+
+
+######################################################################
+# Insert / Delete                                                    #
+######################################################################
+
+my $insdel_vbox  = new Gtk2::VBox( FALSE, 4 );
+my $insdel_hbox1 = new Gtk2::HBox( FALSE, 4 );
+my $insdel_hbox2 = new Gtk2::HBox( FALSE, 4 );
+$notebook->append_page( $insdel_vbox, decode('utf8',gettext('Insert / Delete')) );
+
+# in hbox1
+my $insert_radio = new Gtk2::RadioButton( undef, decode('utf8',gettext('Insert')) );
+$insert_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $insert_entry = Gtk2::Entry->new_with_max_length(254);
+$insert_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $insert_entry->get_position+1;} );
+$insert_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $insert_entry->get_position+1;} );
+my $insert_at_label = new Gtk2::Label( decode('utf8',gettext('at position')) );
+my $insert_adj = new Gtk2::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
+$insert_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $insert_spin = new Gtk2::SpinButton( $insert_adj, 0, 0 );
+$insert_spin->set_numeric(TRUE);
+
+# in hbox2
+my $delete_radio = new Gtk2::RadioButton( $insert_radio, decode('utf8',gettext('Delete between')) );
+$delete_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $delete_btw1_adj = new Gtk2::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
+$delete_btw1_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $delete_btw1_spin = new Gtk2::SpinButton( $delete_btw1_adj, 0, 0 );
+$delete_btw1_spin->set_numeric(TRUE);
+my $delete_btw2_label = new Gtk2::Label( decode('utf8',gettext('and')) );
+my $delete_btw2_adj = new Gtk2::Adjustment( 1, -256.0, 256.0, 1.0, 5.0, 0.0 );
+$delete_btw2_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $delete_btw2_spin = new Gtk2::SpinButton( $delete_btw2_adj, 0, 0 );
+$delete_btw2_spin->set_numeric(TRUE);
+
+$insdel_vbox ->pack_start( $insdel_hbox1,      FALSE, FALSE, 4 );
+$insdel_vbox ->pack_start( $insdel_hbox2,      FALSE, FALSE, 4 );
+$insdel_hbox1->pack_start( $insert_radio,      FALSE, FALSE, 4 );
+$insdel_hbox1->pack_start( $insert_entry,      FALSE, FALSE, 4 );
+$insdel_hbox1->pack_start( $insert_at_label,   FALSE, FALSE, 4 );
+$insdel_hbox1->pack_start( $insert_spin,       FALSE, FALSE, 4 );
+$insdel_hbox2->pack_start( $delete_radio,      FALSE, FALSE, 4 );
+$insdel_hbox2->pack_start( $delete_btw1_spin,  FALSE, FALSE, 4 );
+$insdel_hbox2->pack_start( $delete_btw2_label, FALSE, FALSE, 4 );
+$insdel_hbox2->pack_start( $delete_btw2_spin,  FALSE, FALSE, 4 );
+
+
+######################################################################
+# Replace / Remove                                                   #
+######################################################################
+
+my $reprem_vbox  = new Gtk2::VBox( FALSE, 4 );
+my $reprem_hbox  = new Gtk2::HBox( FALSE, 4 );
+$notebook->append_page( $reprem_vbox, decode('utf8',gettext('Replace / Remove')) );
+
+my $replace_this_label = new Gtk2::Label( decode('utf8',gettext('Replace')) );
+my $replace_this_entry = Gtk2::Entry->new_with_max_length(99);
+$replace_this_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_this_entry->get_position+1;} );
+$replace_this_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_this_entry->get_position+1;} );
+my $replace_with_label = new Gtk2::Label( decode('utf8',gettext('with')) );
+my $replace_with_entry = Gtk2::Entry->new_with_max_length(99);
+$replace_with_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_with_entry->get_position+1;} );
+$replace_with_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_with_entry->get_position+1;} );
+my $replace_opt_case  = new Gtk2::CheckButton( decode('utf8',gettext('Case sensitive')) );
+$replace_opt_case->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $replace_opt_regex = new Gtk2::CheckButton( decode('utf8',gettext('Regular expression')) );
+$replace_opt_regex->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+
+$reprem_vbox->pack_start( $reprem_hbox,        FALSE, FALSE, 4 );
+$reprem_hbox->pack_start( $replace_this_label, FALSE, FALSE, 4 );
+$reprem_hbox->pack_start( $replace_this_entry, FALSE, FALSE, 4 );
+$reprem_hbox->pack_start( $replace_with_label, FALSE, FALSE, 4 );
+$reprem_hbox->pack_start( $replace_with_entry, FALSE, FALSE, 4 );
+$reprem_vbox->pack_start( $replace_opt_case,   FALSE, FALSE, 4 );
+$reprem_vbox->pack_start( $replace_opt_regex,  FALSE, FALSE, 4 );
+
+
+######################################################################
+# Numerical                                                          #
+######################################################################
+
+my $numeric_vbox  = new Gtk2::VBox( FALSE, 4 );
+my $numeric_hbox1 = new Gtk2::HBox( FALSE, 4 );
+my $numeric_hbox2 = new Gtk2::HBox( FALSE, 4 );
+my $numeric_hbox3 = new Gtk2::HBox( FALSE, 4 );
+$notebook->append_page( $numeric_vbox, decode('utf8',gettext('Numerical')) );
+
+# in hbox1
+my $numeric_start_label = new Gtk2::Label( decode('utf8',gettext('Add numbers starting at')) );
+my $numeric_start_adj   = new Gtk2::Adjustment( 1, 0.0, 999999.0, 1.0, 5.0, 0.0 );
+$numeric_start_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $numeric_start_spin  = new Gtk2::SpinButton( $numeric_start_adj, 0, 0 );
+$numeric_start_spin->set_numeric(TRUE);
+my $numeric_increment_label = new Gtk2::Label( decode('utf8',gettext('and increment by')) );
+my $numeric_increment_adj   = new Gtk2::Adjustment( 1, 1.0, 9999.0, 1.0, 1.0, 0.0 );
+$numeric_increment_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+my $numeric_increment_spin = new Gtk2::SpinButton( $numeric_increment_adj, 0, 0 );
+$numeric_increment_spin->set_numeric(TRUE);
+
+# in hbox2 
+my $numeric_prefix_label = new Gtk2::Label( decode('utf8',gettext('Insert before the numbers')) );
+my $numeric_prefix_entry = Gtk2::Entry->new_with_max_length(254);
+$numeric_prefix_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_prefix_entry->get_position+1;} );
+$numeric_prefix_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_prefix_entry->get_position+1;} );
+$numeric_prefix_entry->set_width_chars (9);
+my $numeric_suffix_label = new Gtk2::Label( decode('utf8',gettext('and after')) );
+my $numeric_suffix_entry = Gtk2::Entry->new_with_max_length(254);
+$numeric_suffix_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_suffix_entry->get_position+1;} );
+$numeric_suffix_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_suffix_entry->get_position+1;} );
+$numeric_suffix_entry->set_width_chars (9);
+
+# in hbox3
+my $numeric_keep_filenames1 = new Gtk2::Label( decode('utf8',gettext('Keep existing names')) );
+my $numeric_keep_filenames2 = new Gtk2::RadioButton( undef, decode('utf8',gettext('Before the numbers')) );
+my $numeric_keep_filenames3 = new Gtk2::RadioButton( $numeric_keep_filenames2, decode('utf8',gettext('After the numbers')) );
+my $numeric_keep_filenames4 = new Gtk2::RadioButton( $numeric_keep_filenames2, decode('utf8',gettext('No')) );
+$numeric_keep_filenames4->set_active( TRUE );
+
+$numeric_keep_filenames2->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$numeric_keep_filenames3->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$numeric_keep_filenames4->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+
+$numeric_vbox->pack_start(  $numeric_hbox1,           FALSE, FALSE, 4 );
+$numeric_vbox->pack_start(  $numeric_hbox2,           FALSE, FALSE, 4 );
+$numeric_vbox->pack_start(  $numeric_hbox3,           FALSE, FALSE, 4 );
+$numeric_hbox1->pack_start( $numeric_start_label,     FALSE, FALSE, 4 );
+$numeric_hbox1->pack_start( $numeric_start_spin,      FALSE, FALSE, 4 );
+$numeric_hbox1->pack_start( $numeric_increment_label, FALSE, FALSE, 4 );
+$numeric_hbox1->pack_start( $numeric_increment_spin,  FALSE, FALSE, 4 );
+$numeric_hbox2->pack_start( $numeric_prefix_label,    FALSE, FALSE, 4 );
+$numeric_hbox2->pack_start( $numeric_prefix_entry,    FALSE, FALSE, 4 );
+$numeric_hbox2->pack_start( $numeric_suffix_label,    FALSE, FALSE, 4 );
+$numeric_hbox2->pack_start( $numeric_suffix_entry,    FALSE, FALSE, 4 );
+$numeric_hbox3->pack_start( $numeric_keep_filenames1, FALSE, FALSE, 4 );
+$numeric_hbox3->pack_start( $numeric_keep_filenames2, FALSE, FALSE, 4 );
+$numeric_hbox3->pack_start( $numeric_keep_filenames3, FALSE, FALSE, 4 );
+$numeric_hbox3->pack_start( $numeric_keep_filenames4, FALSE, FALSE, 4 );
+
+
+######################################################################
+# Buttons                                                            #
+######################################################################
+
+my $button_box = new Gtk2::VButtonBox();
+$button_box->set_layout_default( 'spread' );
+$table->attach_defaults( $button_box, 1, 2, 0, 1 );
+
+my $preview_button = new Gtk2::Button( decode('utf8',gettext('_Preview')) );
+$button_box->add($preview_button);
+$preview_button->set_sensitive( TRUE );
+if ( $settings{'auto_preview'} == TRUE ) { $preview_button->set_sensitive( FALSE ); }
+$preview_button->signal_connect( 'clicked', \&preview );
+
+my $apply_button = new Gtk2::Button( decode('utf8',gettext('_Rename')) );
+$button_box->add($apply_button);
+$apply_button->set_sensitive( TRUE );
+if ( $settings{'auto_preview'} == FALSE ) { $apply_button->set_sensitive( FALSE ); }
+$apply_button->signal_connect( 'clicked', \&rename_now );
+
+my $undo_button = new Gtk2::Button( decode('utf8',gettext('_Undo')) );
+$button_box->add($undo_button);
+$undo_button->set_sensitive( FALSE );
+$undo_button->signal_connect( 'clicked', \&undo );
+
+my $refresh_button = new Gtk2::Button( decode('utf8',gettext('Refre_sh')) );
+$button_box->add($refresh_button);
+$refresh_button->set_sensitive( TRUE );
+$refresh_button->signal_connect( 'clicked', \&refresh );
+
+$window->show_all();
+&open_tree; # automatically open the tree at start for the user
+Gtk2->main;
+exit(0);
+
+
+######################################################################
+# Functions                                                          #
+######################################################################
+
+sub populate_tree{
+   my ( $tree_view, $iter, $tree_path ) = @_;
+   my $tree_model = $tree_view->get_model();
+
+   my $path = ''; # current path selected
+   my @path;      # will store a listing of all files/directories of $path
+   my $iter_to_remove = $tree_model->iter_n_children( $iter ); # number of child to remove at the end
+   # set $path to be the full path name from the iter selected
+   my $iter_tmp = $iter;
+   while( $iter_tmp ) {
+      $path = $tree_model->get($iter_tmp) . '/' . $path;
+      $iter_tmp = $tree_model->iter_parent( $iter_tmp );
+   }
+   $path =~ s/\/{2,}/\//g; # replace double slash to only one
+   $path = encode('utf8',$path);
+
+   # fill @path with a list of files and directories
+   opendir( DIRHANDLE, $path );
+   @path = readdir(DIRHANDLE);
+   closedir(DIRHANDLE);
+   @path = sort(@path);
+
+   # Append all the new directories that just opened up from the tree
+   foreach my $i (@path) {
+
+      # Append only if it's a directory, not a file, and it's not the directory '.' or '..' and that we have permissions to access the directory
+      if ( -d decode('utf8',"$path$i") and $i ne '.' and $i ne '..' and -x decode('utf8',"$path$i") ) {
+
+         # Append only hidden files and directories if the option Show hidden files is checked
+         if ( substr($i,0,1) ne '.' or ( substr($i,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
+
+            # fill @path_child with a listing of all files/directories of $i
+            my @path_child = '';
+            opendir( DIRHANDLE, decode('utf8',"$path$i") );
+            @path_child = readdir(DIRHANDLE);
+            closedir(DIRHANDLE);
+            @path_child = sort(@path_child);
+
+            # add a new directory to the tree which is $i
+            my $iter_new = $ts_tree->append( $iter );
+            $ts_tree->set( $iter_new, 0 => decode('utf8',$i) );
+
+            # we have to loop again to add new directories to the child of $i so that we can
+            # have a little arrow to open up $i since it contains other directories inside
+            foreach my $j (@path_child) {
+               if ( -d decode('utf8',"$path$i/$j") and $j ne '.' and $j ne '..'  ) {
+                  my $iter_child = $ts_tree->append( $iter_new );
+                  $ts_tree->set( $iter_child, 0 => decode('utf8',$j) );
+               }
+            }
+         }
+      }
+   }
+
+   # remove all the old directories since we just put new ones
+   foreach my $h ( 1...$iter_to_remove ) {
+      my $child = $ts_tree->iter_children( $iter );
+      $ts_tree->remove( $child );
+   }
+}
+
+sub populate_listing {
+   my $tree_view = $tv_tree;
+   my $iter = $tree_view->get_selection->get_selected;
+   my $tree_model = $tree_view->get_model();
+   my $path = ''; # current path selected
+   my @path;      # will store a listing of all files/directories of $path
+   $status_bar_files=0;
+   $status_bar_dirs=0;
+
+   # set $path to be the full path name from the iter selected
+   my $iter_tmp = $iter;
+   while( $iter_tmp ) {
+      $path = $tree_model->get($iter_tmp) . '/' . $path;
+      $iter_tmp = $tree_model->iter_parent( $iter_tmp );
+   }
+   $path =~ s/\/{2,}/\//g; # replace double slash to only one
+
+   # fill @path with a list of files and directory, make sure to use the
+   # opendir function and not the glob function for this because glob
+   # cannot handle directory with text inside brackets : "some[thing]", google
+   # for 'glob bug bracket' for more information on this behavior
+   opendir( DIRHANDLE, $path );
+   @path = readdir(DIRHANDLE);
+   closedir(DIRHANDLE);
+   @path = sort(@path);
+
+   # clear the ListStore before we put the new ones in
+   $ls_files->clear;
+   $ls_dirs->clear;
+
+   # Append all the new files and directories names to each list if it's a
+   # file or a directory and it matches the filter and depending on the Show hidden files options
+   foreach my $t (@path) {
+      if ( -f $path . decode('utf8',$t) and index(lc($t), lc($filter)) != -1 ) {
+         if ( substr($t,0,1) ne '.' or ( substr($t,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
+            my $iter_new = $ls_files->append;
+            $status_bar_files+=1;
+            if ( $showpath == 0 ) { $ls_files->set_value( $iter_new, 0, decode('utf8',$t) ); }
+            else { $ls_files->set_value( $iter_new, 0, decode('utf8',"$path$t") ); }
+         }
+      }
+      elsif ( -d $path . decode('utf8',$t) and index(lc($t), lc($filter)) != -1 and $t ne '.' and $t ne '..' ) {
+         if ( substr($t,0,1) ne '.' or ( substr($t,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
+            my $iter_new = $ls_dirs->append;
+            $status_bar_dirs+=1;
+            if ( $showpath == 0 ) { $ls_dirs->set_value( $iter_new, 0, decode('utf8',$t) ); }
+            else { $ls_dirs->set_value( $iter_new, 0, decode('utf8',"$path$t") ); }
+         }
+      }
+   }
+
+   # Turn off Automatic Preview if there's more than 10,000 files or directories
+   if ( $status_bar_files >= 10000 or $status_bar_dirs >= 10000 ) { 
+      $auto_preview_rmi->set_active( FALSE  );
+      $settings{'auto_preview'} = 0; 
+      $preview_button->set_sensitive(TRUE);
+      $apply_button->set_sensitive( FALSE );
+   }
+
+   if ( $settings{'auto_preview'} == TRUE ) { &preview };
+   $tv_files->columns_autosize;
+   $tv_dirs->columns_autosize;
+
+   &refresh_status_bar;
+}
+
+sub refresh_status_bar {
+   $status_bar_selected=0;
+   my $temp_file = decode('utf8',gettext('_File'));
+   $temp_file =~ s/_//g;
+
+   if ( $status_bar_files < 2 ) { $status_bar->set_label( $status_bar_files . ' ' . $temp_file ); }
+   else                         { $status_bar->set_label( $status_bar_files . ' ' . decode('utf8',gettext('Files')) ); } 
+
+   if ( $status_bar_dirs < 2 ) { $status_bar->set_label( $status_bar->get_label . ' | ' . $status_bar_dirs . ' ' . decode('utf8',gettext('Directory'))  ); }
+   else                        { $status_bar->set_label( $status_bar->get_label . ' | ' . $status_bar_dirs . ' ' . decode('utf8',gettext('Directories')) ); } 
+
+   my $page_file_or_dir = $file_dir_notebook->get_current_page;
+   if    ( $page_file_or_dir == 0 ) { $status_bar_selected = $tv_files->get_selection->count_selected_rows; }
+   if    ( $page_file_or_dir == 1 ) { $status_bar_selected = $tv_dirs->get_selection->count_selected_rows; }
+   $status_bar->set_label( $status_bar->get_label . ' | ' . $status_bar_selected . ' ' . decode('utf8',gettext('Selected')) );
+}
+
+sub preview {
+   # change the cursor
+   my $cursor = Gtk2::Gdk::Cursor->new('watch');
+   $window->window->set_cursor($cursor);
+
+   # We need an Idle callback else the cursor will not display
+   Glib::Idle->add( sub {
+
+   my $page = $notebook->get_current_page;
+   my $page_file_or_dir = $file_dir_notebook->get_current_page;
+   my $tree_view; # TreeView of files or directories
+   my $store;     # ListStore of files or directories
+   if    ( $page_file_or_dir == 0 ) { $tree_view = $tv_files; $store = $ls_files; }
+   elsif ( $page_file_or_dir == 1 ) { $tree_view = $tv_dirs ; $store = $ls_dirs ; }
+   @column_name    =();
+   @column_new_name=();
+   my $selected_rows = $tree_view->get_selection->count_selected_rows;
+
+   if ( defined $apply_button ) { $apply_button->set_sensitive( TRUE ); }
+
+   # Fill @column_name
+   if ( defined $tree_view ) { $tree_view->get_model->foreach( sub 
+      {
+         my ($model, $path, $iter, $tree_view) =@_;
+         # If there's no selection or there is and it's this iter, then add
+         # a string to @column_name, else set it empty with ''
+         if ( $selected_rows == 0 or $tree_view->get_selection->iter_is_selected( $iter ) ) { push(@column_name, $model->get($iter,0) ); }
+         else { push(@column_name, '' ); }
+      return FALSE;
+      }, $tree_view); }
+
+   # Fill @column_new_name
+   if    ( $page == 0 ) { &case;    }
+   elsif ( $page == 1 ) { &insdel;  }
+   elsif ( $page == 2 ) { &replace; }
+   elsif ( $page == 3 ) { &numeric; }
+
+   # Append the new name in the column New Name
+   if ( defined $tree_view ) { $tree_view->get_model->foreach( sub {
+      my ($model, $path, $iter, $store) =@_;
+      $store->set( $iter, 1, $column_new_name[0] );
+      push(@column_new_name, shift(@column_new_name));
+      return FALSE;
+   }, $store); }
+
+   &refresh_status_bar;
+
+   $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+   $window->window->set_cursor($cursor);
+   return FALSE;
+   }); # close Glib::Idle
+}
+
+sub rename_now {
+   # change the cursor
+   my $cursor = Gtk2::Gdk::Cursor->new('watch');
+   $window->window->set_cursor($cursor);
+
+   # We need an Idle callback else the cursor will not display
+   Glib::Idle->add( sub {
+
+   my $rename=0;
+   my $name_old='';
+   my $name_new='';
+   my $name_tmp='';
+   my $path='';
+   my $a=0;
+   my $a_undo=0;
+   $exist=0;
+   $max_length_undo_old=0;
+   $max_length_undo_new=0;
+   @undo_oldname=();
+   @undo_newname=();
+
+   my @selected;
+   my $treeview;
+   my $page_file_or_dir = $file_dir_notebook->get_current_page;
+   if ( $page_file_or_dir == 0 ) { $treeview = $tv_files; }
+   if ( $page_file_or_dir == 1 ) { $treeview = $tv_dirs; }
+   @selected = $treeview->get_selection->get_selected_rows;
+
+   # Set $path
+   $path = '';
+   my $iter_tmp = $tv_tree->get_selection->get_selected;
+   while( $iter_tmp ) {
+      $path = $tv_tree->get_model->get($iter_tmp) . '/' . $path;
+      $iter_tmp = $tv_tree->get_model->iter_parent( $iter_tmp );
+   }
+
+   # replace double dash to only one
+   $path =~ s/\/{2,}/\//g;
+
+   $undo_path = $path;
+
+   while ( $a < @column_new_name ) {
+   if ( $column_new_name[$a] ne '' ) {
+
+      # Set $name_old and $name_new without the path
+      if ( $showpath == 0 ) { $name_old = $column_name[$a]; }
+      else { $name_old = substr( $column_name[$a], rindex($column_name[$a],'/')+1, length($column_name[$a]) ); }
+      $name_new = $column_new_name[$a];
+
+      # Check if a file or a directory already exist with the name we need
+      if ( $security == 1 and $exist == 0 and -e $path . $name_new ) {
+         my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because it already exist.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
+         $dialog->run;
+         $dialog->destroy;
+         $exist=1;
+      }
+
+      # Check if a file or a directory is more than 253 characters long, else after appending _gp the filename will be too long
+      if ( (length($name_old) >= 253) || (length($name_new) >= 253) ) {
+        my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because the filename is too long.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
+        $dialog->run;
+        $dialog->destroy;
+        $exist=1;
+      }
+
+      # If the file or directory doesn't exist, then start renaming
+      if ( $exist == 0 ) {
+
+         # If the setting Trim Spaces is checked, then trim it
+         if ( $settings{'trim_spaces'} == TRUE ) { 
+            $name_new =~ s/^\s+//;     # trim spaces at start
+            $name_new =~ s/\s+$//;     # trim spaces at end
+            $name_new =~ s/\s{2,}/ /g; # replace more than 2 spaces to only 1
+         }
+
+         # Set $max_length for the log file
+         if ( $max_length_undo_old < length($name_old) ) { $max_length_undo_old = length($name_old); }
+         if ( $max_length_undo_new < length($name_new) ) { $max_length_undo_new = length($name_new); }
+
+         $undo_oldname[$a_undo] = $name_old;
+         $undo_newname[$a_undo] = $name_new;
+         $a_undo++;
+
+         # We have to rename the files/dirs 2 times with "_gp" because you can't
+         # rename the file "a" to "A" in one shot on a Windows filesystem
+         $name_old = "$path$name_old";
+         $name_tmp = "$name_old" . "_gp";
+         $name_new = "$path$name_new";
+         rename( $name_old, $name_tmp ) || print $! . "\n";
+         rename( $name_tmp, $name_new );
+
+         $rename=1;
+      } # end if $exist
+
+   } # end if
+      $a++;
+   } # end while
+
+   # if there was a rename with no error then print to the log file
+   if ( $rename == 1 and $exist == 0 ) {
+      open( OUTPUT, '>>', $log_file ) or die "Couldn't open $log_file for writing: $!\n";
+      flock( OUTPUT, LOCK_EX );
+      if ( $path ne '/' ) { print OUTPUT localtime() . " - " . substr($path, 0, length($path)-1) . "\n"; }
+      else                { print OUTPUT localtime() . " - $path\n"; }
+
+      my $x=0;
+      my $y=0;
+      while ( $x < @undo_newname ) {
+         print OUTPUT $undo_oldname[$x];
+         $y=length( decode('utf8',$undo_oldname[$x]) );
+         while ( $y < $max_length_undo_old ) { print OUTPUT " "; $y++; }
+         print OUTPUT " => $undo_newname[$x]\n";
+         $x++;
+      }
+
+      print OUTPUT "\n";
+      flock( OUTPUT, LOCK_UN );
+      close( OUTPUT );
+      $undo_button->set_sensitive( TRUE );
+   }
+
+   # if there was a renaming and there was an error then call undo
+   if ( $rename == 1 and $exist == 1 ) { &undo; }
+
+   @column_name=();
+   @column_new_name=();
+
+   &populate_listing;
+
+   $tv_files->columns_autosize;
+   $tv_dirs->columns_autosize;
+
+   # if there was an error, keep the selection of the user
+   if ( $exist == 1 ) { foreach my $x (@selected) { $treeview->get_selection->select_path( $x ); } }
+
+   &check_log_size;
+
+   if ( $settings{'auto_preview'} == FALSE ) { $apply_button->set_sensitive( FALSE ); }
+
+   $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+   $window->window->set_cursor($cursor);
+   return FALSE;
+   }); # close Glib::Idle
+
+}
+
+sub case {
+   my @case_first_after = split( //, $case_first_after_entry->get_text);
+   my $new_name='';
+   my $name_check='';
+   my $a=0;
+
+   while ( $a < @column_name ) {
+   if ( $column_name[$a] ne '' ) {
+
+      # Trim the spaces and the path if the option Show path is selected
+      if ( $showpath == 0 ) { $new_name = $column_name[$a]; }
+      else { $new_name = substr( $column_name[$a] , rindex($column_name[$a],'/')+1, length($column_name[$a])) };
+      $name_check = $new_name;
+      $new_name = &options_trim_spaces_and_return($new_name);
+
+      # To UPPERCASE
+      if    ( $case_all_up_radio->get_active ) { $new_name = "\U$new_name"; }
+
+      # to lowercase
+      elsif ( $case_all_lo_radio->get_active ) { $new_name = "\L$new_name"; }
+
+      # Only the first letter
+      # loop through each character, when it finds the first character that can
+      # be converted to uppercase, set it and exit the loop, this function can
+      # then convert "05 something" to "05 Something"
+      elsif ( $case_only_first_radio->get_active ) {
+         $new_name = "\L$new_name";
+         my $exit=0;
+         my @tmp = split( //, $new_name );
+         foreach my $x (@tmp) {
+            if ( $exit == 0 ) {
+               if ( $x =~ /\p{Ll}\p{M}*/ ) { $x = "\U$x"; $exit = 1; }
+            }
+         }
+         $new_name = join( "", @tmp );
+      }
+ 
+      # Each First Letter
+      # Loop two times for each string for each character, if it's equal then
+      # set the next character in uppercase
+      elsif ( $case_first_radio->get_active ) {
+         $new_name = "\L$new_name";
+         my @temp1 = split( //, $new_name); # to loop
+         my @temp2 = split( //, $new_name); # to modify
+         foreach my $x (@case_first_after) {
+         my $y=0;
+            foreach my $z (@temp1) {
+               if ( $x eq $z and defined $temp1[$y+1] ) { $temp2[$y+1] = "\U$temp2[$y+1]"; }
+               $y++;
+            }
+         }
+         $temp2[0] = "\U$temp2[0]";
+         $new_name = join( "", @temp2 );
+      }
+
+   } # end if
+
+      $column_new_name[$a]='';
+      if ( $name_check ne &options_trim_spaces_and_return($new_name) ) { $column_new_name[$a] = &options_trim_spaces_and_return($new_name); }
+      $new_name='';
+      $a++;
+   } # end while
+}
+
+sub insdel {
+   my $new_name='';
+   my $name_check='';
+   my $a=0;
+
+   while ( $a < @column_name ) {
+   if ( $column_name[$a] ne '' ) {
+
+      # Trim the spaces and the path if the option Show path is selected
+      if ( $showpath == 0 ) { $new_name = $column_name[$a]; }
+      else { $new_name = substr( $column_name[$a] , rindex($column_name[$a],'/')+1, length($column_name[$a])) };
+      $name_check = $new_name;
+      $new_name = &options_trim_spaces_and_return($new_name);
+
+      # Insert
+      if ( $insert_radio->get_active and $insert_entry->get_text ne '' ) {
+         my $insert_at = $insert_spin->get_value_as_int();
+         if ( $insert_at > length($new_name) or $insert_at < (length($new_name)-(length($new_name)*2)) ) { $insert_at = length($new_name); }
+         my $tmp_string1 = substr( $new_name, 0, $insert_at );
+         my $tmp_string2 = substr( $new_name, $insert_at, length($new_name) );
+         $new_name = $tmp_string1 . $insert_entry->get_text . $tmp_string2;
+      }
+
+      # Delete
+      elsif ( $delete_radio->get_active ) {
+         my $delete_to = $delete_btw2_spin->get_value_as_int();
+         my $delete_from = $delete_btw1_spin->get_value_as_int();
+         if ( $delete_to > length($new_name) or $delete_to < (length($new_name)-(length($new_name)*2)) ) { $delete_to = length($new_name); }
+         my $tmp_string1 = substr( $new_name, 0, $delete_from );
+         my $tmp_string2 = substr( $new_name, $delete_to, length($new_name) );
+         $new_name = $tmp_string1 . $tmp_string2;
+      }
+
+   } # end if
+
+      $column_new_name[$a]='';
+      if ( $name_check ne &options_trim_spaces_and_return($new_name) ) { $column_new_name[$a] = &options_trim_spaces_and_return($new_name); }
+      $new_name='';
+      $a++;
+   } # end while
+}
+
+sub replace {
+   my $new_name='';
+   my $name_check='';
+   my $a=0;
+   my $replace_this = $replace_this_entry->get_text;
+   my $replace_with = $replace_with_entry->get_text;
+
+   while ( $a < @column_name ) {
+   if ( $column_name[$a] ne '' and $replace_this ne '' ) {
+
+      # Trim the spaces and the path if the option Show path is selected
+      if ( $showpath == 0 ) { $new_name = $column_name[$a]; }
+      else { $new_name = substr( $column_name[$a] , rindex($column_name[$a],'/')+1, length($column_name[$a])) };
+      $name_check = $new_name;
+      $new_name = &options_trim_spaces_and_return($new_name);
+
+      # Substitution with pattern metacharacters
+      if ( $replace_opt_regex->get_active ) {
+         if ( $replace_opt_case->get_mode ) { $new_name =~ s/$replace_this/$replace_with/g;  }
+         else                               { $new_name =~ s/$replace_this/$replace_with/ig; }
+      }
+
+      # Substitution without pattern metacharacters (hence the \Q)
+      else {
+         if ( $replace_opt_case->get_active ) { $new_name =~ s/\Q$replace_this/$replace_with/g;  }
+         else                                 { $new_name =~ s/\Q$replace_this/$replace_with/ig; }
+      }
+
+   } # end if
+
+      $column_new_name[$a]='';
+      if ( $name_check ne &options_trim_spaces_and_return($new_name) ) { $column_new_name[$a] = &options_trim_spaces_and_return($new_name); }
+      $new_name='';
+      $a++;
+   } # end while
+}
+
+sub numeric {
+   my $numeric_start     = $numeric_start_spin->get_value_as_int();
+   my $numeric_increment = $numeric_increment_spin->get_value_as_int();
+   my $numeric_prefix    = $numeric_prefix_entry->get_text;
+   my $numeric_suffix    = $numeric_suffix_entry->get_text;
+   my $name_before='';
+   my $name_after='';
+   my $new_name='';
+   my $name_check='';
+   my $a=0;
+   my $max_no=0;                        # Used for the zero-autofill 
+   my $numeric_number=0;                # Used for the zero-autofill 
+   my $zero_autofill_no=$numeric_start; # Used for the zero-autofill 
+
+   # Calculate the number of items to rename and set $max_no
+   foreach my $x (@column_name) { if ( $x ne '' ) { $max_no++; } }
+   $max_no = ($max_no - 1) * $numeric_increment + $numeric_start;
+   $max_no = length($max_no);
+
+   while ( $a < @column_name ) {
+   if ( $column_name[$a] ne '' ) {
+
+      # Trim the spaces and the path if the option Show path is selected
+      if ( $showpath == 0 ) { $new_name = $column_name[$a]; }
+      else { $new_name = substr( $column_name[$a] , rindex($column_name[$a],'/')+1, length($column_name[$a])) };
+      $name_check = $new_name;
+      $new_name = &options_trim_spaces_and_return($new_name);
+
+      # Set the two name_before and name_after, doesn't matter if it's not use
+      # because their value is an empty string
+      if ( $numeric_keep_filenames2->get_active ) { $name_before = $new_name; }
+      if ( $numeric_keep_filenames3->get_active ) { $name_after  = $new_name; }
+
+      # If zero autofill is used, then fill $numeric_number with the right amount
+      # of '0' in it
+      $numeric_number = '';
+      if ( $zero_autofill_rmi->get_active ) {
+         while ( (length($numeric_number) + length($zero_autofill_no)) < $max_no ) { 
+               $numeric_number = '0' . $numeric_number;
+         }
+      }
+
+      $new_name = $name_before . $numeric_prefix . $numeric_number . $zero_autofill_no . $numeric_suffix . $name_after;
+
+      $zero_autofill_no = $zero_autofill_no + $numeric_increment;
+   } # end if
+
+      $column_new_name[$a]='';
+      if ( $name_check ne &options_trim_spaces_and_return($new_name) ) { $column_new_name[$a] = &options_trim_spaces_and_return($new_name); }
+      $new_name='';
+      $a++;
+   } # end while
+}
+
+sub refresh {
+   # Set $path
+   my $path = '';
+   my $iter_tmp = $tv_tree->get_selection->get_selected;
+   while( $iter_tmp ) {
+      $path = $tv_tree->get_model->get($iter_tmp) . '/' . $path;
+      $iter_tmp = $tv_tree->get_model->iter_parent( $iter_tmp );
+   }
+   $path =~ s/\/{2,}/\//g; # replace double slash to only one
+   $path =~ s/\/^//g;      # remove last trailing slash
+
+   # Clear everything
+   $ls_files->clear;
+   $ls_dirs->clear;
+   $ts_tree->clear;
+
+   # Repopulate the tree with / and open it
+   $iter_tmp = $ts_tree->append( undef );
+   $ts_tree->set( $iter_tmp, 0 => File::Spec->rootdir() );
+   $ts_tree->set( $ts_tree->append( $tv_tree->get_model->get_iter_first ), 0, 'anything' );
+   $tv_tree->expand_to_path( $tv_tree->get_model->get_path( $tv_tree->get_model->get_iter_first ) );
+
+   # Set some useful variables
+   my @paths = split( /\//, $path);
+   shift(@paths); # remove the first item which is empty
+   my $size = @paths; # need $size to get the last item of @paths
+   $path = '';
+   my $iter = $tv_tree->get_model->get_iter_first;
+   $iter = $tv_tree->get_model->iter_nth_child ($iter, 0); # set $iter to point to the first directory in /
+
+   # Re-open the tree where the user was
+   foreach my $x (@paths) { 
+      $path = $path .  '/' . $x;
+
+      if ( -e $path ) {
+         while ( $x ne $tv_tree->get_model->get($iter) and $iter ) { $iter = $tv_tree->get_model->iter_next($iter); }
+
+         if ( $iter )  {
+            $tv_tree->get_selection->select_iter( $iter );
+
+            # expand the path only if it's not the last item
+            if ( $x ne $paths[$size-1] ) { 
+               $tv_tree->expand_to_path( $tv_tree->get_model->get_path( $iter ) );
+               $iter = $tv_tree->get_model->iter_nth_child($iter, 0);
+            }
+         }
+      }
+   }
+
+   # List the files/directories
+   &populate_listing;
+}
+
+sub check_log_size {
+   if ( -s $log_file > 1000000 ) {
+      my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('The log file is over 1M, you should clear it from the Options menu.')) );
+      $dialog->run;
+      $dialog->destroy;
+   }
+}
+
+sub quit {
+   &save_settings;
+   exit(0);
+}
+
+sub options_trim_spaces {
+   if   ( $trim_spaces_rmi->get_active ) { $settings{'trim_spaces'} = TRUE;  }
+   else {                                  $settings{'trim_spaces'} = 0; }
+   if ( $settings{'auto_preview'} == TRUE ) { &preview };
+}
+
+sub options_trim_spaces_and_return {
+   my $i = $_[0];
+
+   if ( $settings{'trim_spaces'} == TRUE and $i ne '' ) { 
+      $i =~ s/^\s+//;
+      $i =~ s/\s+$//;
+      $i =~ s/\s{2,}/ /g;
+   }
+
+   return $i;
+}
+
+sub options_zero_autofill {
+   if   ( $zero_autofill_rmi->get_active ) { $settings{'zero_autofill'} = TRUE; }
+   else {                                    $settings{'zero_autofill'} = 0;    }
+   if ( $settings{'auto_preview'} == TRUE ) { &preview };
+}
+
+sub options_auto_preview {
+   if ( $auto_preview_rmi->get_active ) { 
+      $settings{'auto_preview'} = TRUE;  
+      $preview_button->set_sensitive(FALSE); 
+      $apply_button->set_sensitive( TRUE );
+      &preview;
+   }
+   else {                                   
+      $settings{'auto_preview'} = 0; 
+      $preview_button->set_sensitive(TRUE);
+      $apply_button->set_sensitive( FALSE );
+      &populate_listing;
+   }
+}
+
+sub options_remember_last_directory {
+   if   ( $remember_last_directory_rmi->get_active ) { $settings{'remember_last_directory'} = 1;  }
+   else {                                              $settings{'remember_last_directory'} = 0; }
+}
+
+#sub options_recursive {
+#   if   ( $recursive_rmi->get_active ) { $recursive = TRUE;  }
+#   else {                                $recursive = FALSE; }
+#   if ( $settings{'auto_preview'} == TRUE ) { &preview };
+#}
+
+sub options_show_hidden_files {
+   if   ( $show_hidden_files_rmi->get_active ) { $settings{'show_hidden_files'} = 1;  }
+   else {                                        $settings{'show_hidden_files'} = 0; }
+   &refresh;
+}
+
+sub options_show_path {
+   if   ( $show_path_rmi->get_active ) { $showpath = 1; }
+   else {                                $showpath = 0; }
+   &populate_listing;
+   if ( $settings{'auto_preview'} == TRUE ) { &preview };
+}
+
+sub options_fullscreen {
+   if   ( $fullscreen_rmi->get_active ) { $settings{'fullscreen'} = TRUE;  $window->fullscreen;   }
+   else {                                 $settings{'fullscreen'} = 0;     $window->unfullscreen; }
+}
+
+sub options_security {
+   if   ( $security_rmi->get_active ) { $settings{'security'} = 0;    $security=0; }
+   else {                               $settings{'security'} = TRUE; $security=1; }
+}
+
+sub options_filter {
+   my $dialog = Gtk2::Dialog->new ( decode('utf8',gettext('Filter')), $window, 'destroy-with-parent', 'gtk-ok' => 'reject');
+   $dialog->set_default_response ('reject');
+   $dialog->set_has_separator (TRUE);
+   my $label = new Gtk2::Label( decode('utf8',gettext('Only show files or directories that contains')) );
+
+   my $filter_entry = Gtk2::Entry->new_with_max_length(254);
+   $filter_entry->set_activates_default( TRUE );
+   $filter_entry->signal_connect_after( 'insert-text', sub { $filter = encode('utf8',$filter_entry->get_text); &populate_listing; return '', $filter_entry->get_position+1;} );
+   $filter_entry->signal_connect_after( 'delete-text', sub { $filter = encode('utf8',$filter_entry->get_text); &populate_listing; return '', $filter_entry->get_position+1;} );
+
+   $filter_entry->set_text( decode('utf8',$filter) );
+
+   $dialog->vbox->pack_start($label, TRUE, TRUE, TRUE);
+   $dialog->vbox->pack_start($filter_entry, TRUE, TRUE, TRUE);
+
+   $label->show;
+   $filter_entry->show;
+   $dialog->show;
+
+   $dialog->signal_connect(response =>  sub { if ( $_[1] =~ m/reject/ ) { $dialog->destroy; } } );
+}
+
+sub options_view_log {
+   my $dialog = Gtk2::Dialog->new ('', $window, 'destroy-with-parent', decode('utf8',gettext('Clear')) => 'accept', 'gtk-ok' => 'reject');
+   $dialog->set_default_response ('reject');
+   $dialog->set_has_separator (TRUE);
+   $dialog->set_default_size ($settings{'width'}, $settings{'height'});
+
+   my $log_sw = new Gtk2::ScrolledWindow( undef, undef );
+   $log_sw->set_policy( 'automatic', 'automatic' );
+   $log_sw->set_shadow_type ('in');
+
+   my $textview = Gtk2::TextView->new();
+   $textview->set_editable( FALSE );
+   $textview->set_cursor_visible( FALSE ) ;
+   $textview->set_wrap_mode ( 'none' ) ;
+   $textview->set_justification ( 'left' ) ;
+   my $buffer = $textview->get_buffer();
+   my $content = '';
+   if ( -e $log_file ) { $content = `cat $log_file`; }
+   $textview->get_buffer()->set_text( $content );
+   if ( $content eq '' ) { $dialog->set_response_sensitive ('accept', FALSE) };
+   my $tag = $textview->get_buffer()->create_tag ('', 'font', 'courier new');
+   $textview->get_buffer()->apply_tag ($tag, $textview->get_buffer()->get_start_iter, $textview->get_buffer()->get_end_iter);
+
+   $log_sw->add_with_viewport( $textview );
+   $dialog->vbox->pack_start($log_sw, TRUE, TRUE, TRUE);
+
+   $textview->show();
+   $log_sw->show();
+   $dialog->show;
+
+   $dialog->signal_connect(response => sub {
+      if ( $_[1] =~ m/accept/ ) {
+         if ( -e $log_file ) { `rm -f $log_file`; `touch $log_file`; }
+         $textview->get_buffer()->set_text( '' );
+         $dialog->set_response_sensitive ('accept', FALSE) 
+      }
+      elsif ( $_[1] =~ m/reject/ ) { $dialog->destroy; }
+   });
+}
+
+
+sub undo {
+   my $a=0;
+   @undo_newname = reverse(@undo_newname);
+   @undo_oldname = reverse(@undo_oldname);
+
+   # We rename in reverse order to make sure we don't overwrite files/dirs
+   foreach my $x (@undo_newname) {
+      rename( $undo_path . $x, $undo_path . $x . '_gp' );
+      rename( $undo_path . $x . '_gp', $undo_path . $undo_oldname[$a] );
+      $a++;
+   }
+
+   @undo_newname = reverse(@undo_newname);
+   @undo_oldname = reverse(@undo_oldname);
+   $a=0;
+
+   # Then we print to the log file in sorted order
+   if ($exist == 0) {
+      open( OUTPUT, '>>', $log_file ) or die "Couldn't open $log_file for writing: $!\n";
+      flock( OUTPUT, LOCK_EX );
+      if ( $undo_path ne '/' ) { print OUTPUT localtime() . " - " . substr($undo_path, 0, length($undo_path)-1) . "\n"; }
+      else                     { print OUTPUT localtime() . " - $undo_path\n"; }
+
+      $a=0;
+      foreach my $y (@undo_newname) {
+         print OUTPUT $y;
+         my $z=length( decode('utf8',$y) );
+         while ( $z < $max_length_undo_new ) { print OUTPUT " "; $z++; }
+         print OUTPUT " => $undo_oldname[$a]\n";
+         $a++;
+      }
+
+      print OUTPUT "\n";
+      flock( OUTPUT, LOCK_UN );
+      close( OUTPUT );
+   }
+
+   $undo_button->set_sensitive(FALSE);
+   if ( defined $apply_button ) { $apply_button->set_sensitive( FALSE ); }
+   if ( $exist == 0 ) { &populate_listing; }
+}
+
+sub read_settings {
+   if ( !-e $setting_file ) { return; }
+   open( INPUT, '<', $setting_file ) or die "Couldn't open $setting_file for reading: $!\n";
+   flock( INPUT, LOCK_EX );
+   while (my $line = <INPUT>) {
+      chomp($line);
+      (my $key, my $value) = split(/=/, $line);
+      $settings{$key} = $value;
+   }
+   flock( INPUT, LOCK_UN );
+   close( INPUT );
+}
+
+sub save_settings {
+   my $width_tmp;
+   my $height_tmp;
+   ($width_tmp, $height_tmp) = $window->get_size;
+   $settings{'width'} = $width_tmp;
+   $settings{'height'} = $height_tmp;
+   $settings{'hpaned_width'} = $hpaned->get_position;
+
+   # set $path to be the full path name from the iter selected
+   my $tree_view = $tv_tree;
+   my $iter = $tree_view->get_selection->get_selected;
+   my $tree_model = $tree_view->get_model();
+   my $path = ''; # current path selected
+   my $iter_tmp = $iter;
+   while( $iter_tmp ) {
+      $path = $tree_model->get($iter_tmp) . '/' . $path;
+      $iter_tmp = $tree_model->iter_parent( $iter_tmp );
+   }
+   $path =~ s/\/{2,}/\//g; # replace double slash to only one
+   if   ( $remember_last_directory_rmi->get_active ) { $settings{'remember_last_directory_path'} = encode('utf8',$path);  }
+   else {                                              $settings{'remember_last_directory_path'} = ''; }
+
+   my $key;
+   open( OUTPUT, '>', $setting_file ) or die "Couldn't open $setting_file for writing: $!\n";
+   flock( OUTPUT, LOCK_EX );
+   foreach $key ( sort keys %settings ) { print OUTPUT $key, '=', $settings{$key}, "\n"; }
+   flock( OUTPUT, LOCK_UN );
+   close( OUTPUT );
+}
+
+sub help_contents {
+   my $dialog = Gtk2::Dialog->new ( decode('utf8',gettext('Tips')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept');
+   $dialog->set_has_separator (TRUE);
+   $dialog->set_default_response ('accept');
+   $dialog->set_default_size (470, 330);
+
+   my $tips_sw = new Gtk2::ScrolledWindow( undef, undef );
+   $tips_sw->set_policy( 'automatic', 'automatic' );
+   $tips_sw->set_shadow_type ('in');
+
+   my $buffer = Gtk2::TextBuffer->new();
+   $buffer->create_tag ("bold", weight => PANGO_WEIGHT_BOLD);
+   $buffer->create_tag ("indent", 'left-margin' => 20);
+   my $iter = $buffer->get_start_iter;
+   my $tmp_menu_options = decode('utf8',gettext('_Options'));
+   $tmp_menu_options =~ s/_//;
+   $buffer->insert_with_tags_by_name( $iter, $tmp_menu_options , "bold" );
+   $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n\n- " . decode('utf8',gettext('Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n\n- " . decode('utf8',gettext('Automatic preview: This option will be turned off automatically if there\'s more than 10,000 files or directories listed.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n\n- " . decode('utf8',gettext('Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n\n"   . decode('utf8',gettext('Insert / Delete')), "bold" );
+   $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('To specify the end, use a negative number or a high number.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n\n"   . decode('utf8',gettext('Replace / Remove')), "bold" );
+   $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('Backreferences with Regular expression cannot be use as $1 is considered a Perl variable.')), "indent" );
+
+   my $textview = Gtk2::TextView->new_with_buffer( $buffer );
+   $textview->set_editable( FALSE );
+   $textview->set_cursor_visible( FALSE ) ;
+   $textview->set_wrap_mode ( 'word' ) ;
+
+   $dialog->vbox->pack_start( $tips_sw, TRUE, TRUE, TRUE );
+   $tips_sw->add_with_viewport( $textview );
+
+   $textview->show();
+   $tips_sw->show();
+   $dialog->show;
+
+   $dialog->signal_connect( response => sub {
+      my( $self, $response ) = @_;
+      $self->destroy;
+   });
+}
+
+sub help_about {
+   my $dialog = Gtk2::Dialog->new( decode('utf8',gettext('About')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept' );
+   $dialog->set_default_response( 'accept' );
+   $dialog->set_has_separator( TRUE );
+   $dialog->set_default_size( 450, 260 );
+
+   my $about_sw = new Gtk2::ScrolledWindow( undef, undef );
+   $about_sw->set_policy( 'automatic', 'automatic' );
+   $about_sw->set_shadow_type ('in');
+
+   my $buffer = Gtk2::TextBuffer->new();
+   $buffer->create_tag( 'bold', weight => PANGO_WEIGHT_BOLD );
+   $buffer->create_tag( 'big', size => 15 * PANGO_SCALE );
+   $buffer->create_tag( 'italic', style => 'italic' );
+   my $iter = $buffer->get_start_iter;
+   my $icon = '@INSTALLDIR@/share/pixmaps/gprename/gprename.png';
+   my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $icon );
+
+   $buffer->insert_pixbuf ($iter,  $pixbuf);
+   $buffer->insert_with_tags_by_name( $iter, "\n GPRename " . $str_gprename_version, 'bold', 'big' );
+   $buffer->insert_with_tags_by_name( $iter, "\n\nA complete batch renamer for files and directories." );
+   $buffer->insert_with_tags_by_name( $iter, "\n\nMailing list", 'bold' );
+   $buffer->insert_with_tags_by_name( $iter, " - gprename-users\@lists.sourceforge.net" );
+   $buffer->insert_with_tags_by_name( $iter, "\nHome Page", 'bold' );
+   $buffer->insert_with_tags_by_name( $iter, " - http://gprename.sourceforge.net" );
+   $buffer->insert_with_tags_by_name( $iter, "\nWikipedia", 'bold' );
+   $buffer->insert_with_tags_by_name( $iter, " - http://en.wikipedia.org/wiki/GPRename" );
+
+   my $textview = Gtk2::TextView->new_with_buffer($buffer);
+   $textview->set_editable( FALSE );
+   $textview->set_cursor_visible( FALSE ) ;
+   $textview->set_wrap_mode ( 'word' ) ;
+   $textview->set_justification ( 'center' ) ;
+
+   $dialog->vbox->pack_start($about_sw, TRUE, TRUE, TRUE);
+   $about_sw->add_with_viewport( $textview );
+
+   $textview->show();
+   $about_sw->show();
+   $dialog->show;
+
+   $dialog->signal_connect (response => sub {
+      my ($self, $response) = @_;
+      $self->destroy;
+   });
+}
+
+sub open_tree {
+   # Set $path to be the directory to open gprename in
+   my $path;
+   if ( defined($ARGV[0]) ) { 
+      if ( $ARGV[0] eq "/" ) { $path = $ARGV[0]; }
+      else {
+         if ( -e $ENV{PWD} . "/" . $ARGV[0] ) { $path = $ENV{PWD} . "/" . $ARGV[0]; }
+         else { $path = $ARGV[0]; } 
+      }
+   }
+   elsif ( $settings{'remember_last_directory'} ) { $path = $settings{'remember_last_directory_path'};   }
+   else { $path = $ENV{PWD}; }
+
+   $path =~ s/\s$//g;      # remove the last space
+   $path =~ s/\/{2,}/\//g; # replace double slash to only one
+   $path =~ s/\/^//g;      # remove last trailing slash
+   if ( -f $path ) { $path = `dirname "$path"`; } # remove the filename at the end of the path if there is one
+   $path =~ s/\n//g;       # dirname adds a newline (i.e. \n), so remove it
+
+   # Set some useful variables
+   my @paths = split( /\//, $path);
+   shift(@paths); # remove the first item which is empty
+   my $size = @paths; # need $size to get the last item of @paths
+   $path = '';
+   my $iter = $tv_tree->get_model->get_iter_first;
+   $tv_tree->get_selection->select_iter( $iter ); # select the first iter which is '/' in case the use has the remember last directory option check and wants to remember /
+   $iter = $tv_tree->get_model->iter_nth_child ($iter, 0); # set $iter to point to the first directory in /
+
+   # Open up the tree where the user wants to be
+   foreach my $x (@paths) { 
+      $path = $path . '/' . $x;
+      if ( -e $path ) {
+	if ( !defined $iter ) {
+		print "Permission denied for this folder!" . "\n";
+		exit;
+	}
+
+         while ( defined $iter and decode('utf8',$x) ne $tv_tree->get_model->get($iter) ) {
+            $iter = $tv_tree->get_model->iter_next($iter);
+         }
+         if ( $iter ) {
+            $tv_tree->get_selection->select_iter( $iter );
+            # expand the path only if it's not the last item
+            if ( $x ne $paths[$size-1] ) { 
+               $tv_tree->expand_to_path( $tv_tree->get_model->get_path( $iter ) );
+               $iter = $tv_tree->get_model->iter_nth_child($iter, 0);
+            }
+         }
+      }
+	else {
+		print "Path doesn't exist!" . "\n";
+		exit;
+	}
+   }
+
+   # List the files/directories
+   &populate_listing;
+}

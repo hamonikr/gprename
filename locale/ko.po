@@ -1,0 +1,193 @@
+# Catalan translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Kevin Kim <root@hamonikr.org>\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Language-Team: \n"
+"Language: ko\n"
+"X-Generator: Poedit 2.3\n"
+
+msgid "_File"
+msgstr "파일(_F)"
+
+msgid "Quit"
+msgstr "종료"
+
+msgid "_Options"
+msgstr "옵션(_O)"
+
+msgid "Trim spaces"
+msgstr "공백제거"
+
+msgid "Zero auto-fill"
+msgstr "0 자동 채우기"
+
+msgid "Automatic preview"
+msgstr "자동 미리보기"
+
+msgid "Remember last directory"
+msgstr "이전 폴더 기억"
+
+# msgid "Show hidden files"
+# msgstr ""
+msgid "Show path"
+msgstr "경로 보기"
+
+msgid "Show contents of subdirectories"
+msgstr "하위 폴더 내용 보기"
+
+msgid "Fullscreen"
+msgstr "전체화면"
+
+msgid "Disable security check"
+msgstr "보안 검사 비활성화"
+
+msgid "Filter"
+msgstr "필터"
+
+msgid "View log"
+msgstr "로그보기"
+
+msgid "_Help"
+msgstr "도움말(_H)"
+
+msgid "Contents"
+msgstr "도움말 내용"
+
+msgid "About"
+msgstr "프로그램 정보"
+
+msgid "Name"
+msgstr "변경 전 이름"
+
+msgid "New name"
+msgstr "변경 후 이름"
+
+msgid "Files"
+msgstr "파일 목록"
+
+msgid "Directory"
+msgstr "폴더"
+
+msgid "Directories"
+msgstr "폴더 목록"
+
+# msgid "Selected"
+# msgstr ""
+msgid "Case Change"
+msgstr "대소문자 변경"
+
+msgid "ALL UPPERCASE"
+msgstr "모두 대문자로"
+
+msgid "all lowercase"
+msgstr "모두 소문자로"
+
+msgid "Only the first letter"
+msgstr "첫번째 문자만"
+
+msgid "Only The First Letter And After"
+msgstr "첫번째 문자와 다음 문자 이후"
+
+msgid "Insert / Delete"
+msgstr "삽입 / 삭제"
+
+msgid "Insert"
+msgstr "삽입할 문자"
+
+msgid "at position"
+msgstr "삽입할 위치"
+
+msgid "Delete between"
+msgstr "문자 구간 삭제"
+
+msgid "and"
+msgstr "에서"
+
+msgid "Replace / Remove"
+msgstr "대체/제거"
+
+msgid "Replace"
+msgstr "찾을 문자"
+
+msgid "with"
+msgstr "바꿀 문자"
+
+msgid "Case sensitive"
+msgstr "대소문자 구분"
+
+msgid "Regular expression"
+msgstr "정규 표현식"
+
+msgid "Numerical"
+msgstr "숫자변환"
+
+msgid "Add numbers starting at"
+msgstr "시작할 숫자"
+
+msgid "and increment by"
+msgstr "부터 증가할 단위"
+
+msgid "Insert before the numbers"
+msgstr "숫자 앞에 추가할 문자"
+
+msgid "and after"
+msgstr "숫자 뒤에 추가할 문자"
+
+msgid "Keep existing names"
+msgstr "원래 이름을 유지하고"
+
+msgid "Before the numbers"
+msgstr "숫자를 앞에 붙임"
+
+msgid "After the numbers"
+msgstr "숫자를 뒤에 붙임"
+
+msgid "No"
+msgstr "원본 이름 제거"
+
+msgid "_Preview"
+msgstr "미리보기(_P)"
+
+msgid "_Rename"
+msgstr "이름변경(_R)"
+
+msgid "_Undo"
+msgstr "되돌리기(_U)"
+
+msgid "Refre_sh"
+msgstr "새로고침(_s)"
+
+msgid "Cannot rename because it already exist."
+msgstr "동일한 이름이 존재하기 때문에 변경할 수 없습니다."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "로그파일이 너무 큽니다. 옵션 > 로그보기 메뉴에서 비우기를 하세요."
+
+msgid "Only show files or directories that contains"
+msgstr "다음을 포함하는 파일 또는 폴더만 표시"
+
+msgid "Clear"
+msgstr "비우기"
+
+# msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+# msgstr ""
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "0 자동 채우기 : 숫자 섹션의 경우 작업 대상의 갯수가 999까지 올라가면 1 대신 001이 지정됩니다."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "보안 검사 비활성화 : 사용하는 경우 이름을 바꾼 후 파일을 삭제할 수 있습니다. VFAT (Windows) 파티션에서 대소 문자 이름을 바꿀 때만 사용합니다."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "끝을 지정하려면 음수 또는 높은 수를 사용하십시오."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "정규식에서 $1 은 Perl 변수로 간주되므로 사용할 수 없습니다."

@@ -1,0 +1,191 @@
+# Chinese (Simplified) translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "文件 _F"
+
+msgid "Quit"
+msgstr "退出"
+
+msgid "_Options"
+msgstr "选项 _O"
+
+msgid "Trim spaces"
+msgstr "去掉空格"
+
+msgid "Zero auto-fill"
+msgstr "自动用零填充"
+
+msgid "Automatic preview"
+msgstr "自动预览"
+
+msgid "Remember last directory"
+msgstr "记住上次的目录"
+
+msgid "Show hidden files"
+msgstr "显示隐藏文件"
+
+msgid "Show path"
+msgstr "显示路径"
+
+msgid "Show contents of subdirectories"
+msgstr "显示子目录的内容"
+
+msgid "Fullscreen"
+msgstr "全屏"
+
+msgid "Disable security check"
+msgstr "禁止安全检查"
+
+msgid "Filter"
+msgstr "过滤"
+
+msgid "View log"
+msgstr "查看日志"
+
+msgid "_Help"
+msgstr "帮助 _H"
+
+msgid "Contents"
+msgstr "内容"
+
+msgid "About"
+msgstr "关于"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "New name"
+msgstr "新名称"
+
+msgid "Files"
+msgstr "文件"
+
+msgid "Directory"
+msgstr "目录"
+
+msgid "Directories"
+msgstr "目录"
+
+#msgid "Selected"
+#msgstr ""
+
+msgid "Case Change"
+msgstr "改变大小写"
+
+msgid "ALL UPPERCASE"
+msgstr "全部大写"
+
+msgid "all lowercase"
+msgstr "全部小写"
+
+msgid "Only the first letter"
+msgstr "仅第一个字母"
+
+msgid "Only The First Letter And After"
+msgstr "仅第一个字母和此字符后的部分"
+
+msgid "Insert / Delete"
+msgstr "插入/删除"
+
+msgid "Insert"
+msgstr "插入"
+
+msgid "at position"
+msgstr "在位置"
+
+msgid "Delete between"
+msgstr "删除字符，从"
+
+msgid "and"
+msgstr "到"
+
+msgid "Replace / Remove"
+msgstr "替换/去掉"
+
+msgid "Replace"
+msgstr "替换"
+
+msgid "with"
+msgstr "为"
+
+msgid "Case sensitive"
+msgstr "大小写敏感"
+
+msgid "Regular expression"
+msgstr "正则表达式"
+
+msgid "Numerical"
+msgstr "数字"
+
+msgid "Add numbers starting at"
+msgstr "加入数字，从"
+
+msgid "and increment by"
+msgstr "增量为"
+
+msgid "Insert before the numbers"
+msgstr "插入，在此数字前"
+
+msgid "and after"
+msgstr "在此数字后"
+
+msgid "Keep existing names"
+msgstr "保留原有名称"
+
+msgid "Before the numbers"
+msgstr "在此数字前"
+
+msgid "After the numbers"
+msgstr "在此数字后"
+
+msgid "No"
+msgstr "不"
+
+msgid "_Preview"
+msgstr "预览 _P"
+
+msgid "_Rename"
+msgstr "重命名 _R"
+
+msgid "_Undo"
+msgstr "撤销 _U"
+
+msgid "Refre_sh"
+msgstr "刷新 _s"
+
+msgid "Cannot rename because it already exist."
+msgstr "无法重命名，因为已存在"
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "日志文件超过1M，请用“选项”菜单清除日志内容"
+
+msgid "Only show files or directories that contains"
+msgstr "仅显示包含这些内容的文件或目录"
+
+msgid "Clear"
+msgstr "清除"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "删除空格：自动将双空格压缩成单空格，并删除名称开始处或结尾处的空格。"
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "自动用零填充：在数字部分，如果设置最大数为99，则1被重命名为01；如最大数设为999，则1被重命名为001，以此类推。"
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "禁止安全检查：如果使用此功能，可能会在重命名后删除文件。仅在VFAT (Windows)分区中改变大小写时使用。"
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "若指定在结尾处插入或删除，请输入一个负数或很大的数。"
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "不要使用正则表达式中的反向指针，因为$1被视为一个Perl变量。"

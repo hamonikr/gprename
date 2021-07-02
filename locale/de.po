@@ -1,0 +1,191 @@
+# German translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Datei"
+
+msgid "Quit"
+msgstr "_Beenden"
+
+msgid "_Options"
+msgstr "_Optionen"
+
+msgid "Trim spaces"
+msgstr "Überflüssige Leerzeichen löschen"
+
+msgid "Zero auto-fill"
+msgstr "Automatisch mit Nullen auffüllen"
+
+msgid "Automatic preview"
+msgstr "Automatische Vorschau"
+
+msgid "Remember last directory"
+msgstr "Zuletzt verwendetes Verzeichnis speichern"
+
+msgid "Show hidden files"
+msgstr "Versteckte Dateien anzeigen"
+
+msgid "Show path"
+msgstr "Pfade anzeigen"
+
+msgid "Show contents of subdirectories"
+msgstr "Inhalt von Unterordnern anzeigen"
+
+msgid "Fullscreen"
+msgstr "Vollbild"
+
+msgid "Disable security check"
+msgstr "Sicherheitscheck deaktivieren"
+
+msgid "Filter"
+msgstr "Filtern"
+
+msgid "View log"
+msgstr "Log Viewer"
+
+msgid "_Help"
+msgstr "_Hilfe"
+
+msgid "Contents"
+msgstr "Tipps"
+
+msgid "About"
+msgstr "Info"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "New name"
+msgstr "Neuer Name"
+
+msgid "Files"
+msgstr "Dateien"
+
+msgid "Directory"
+msgstr "Verzeichnis"
+
+msgid "Directories"
+msgstr "Ordner"
+
+msgid "Selected"
+msgstr "Selektiert"
+
+msgid "Case Change"
+msgstr "Fallunterscheidung"
+
+msgid "ALL UPPERCASE"
+msgstr "ALLES GROß"
+
+msgid "all lowercase"
+msgstr "alles klein"
+
+msgid "Only the first letter"
+msgstr "Nur der erste Buchstabe"
+
+msgid "Only The First Letter And After"
+msgstr "Nur der erste Buchstabe und nach"
+
+msgid "Insert / Delete"
+msgstr "Einfügen / Löschen"
+
+msgid "Insert"
+msgstr "Einfügen"
+
+msgid "at position"
+msgstr "bei Zeichen"
+
+msgid "Delete between"
+msgstr "Lösche zwischen Zeichen"
+
+msgid "and"
+msgstr "und"
+
+msgid "Replace / Remove"
+msgstr "Ersetzen / Löschen"
+
+msgid "Replace"
+msgstr "Ersetze"
+
+msgid "with"
+msgstr "mit"
+
+msgid "Case sensitive"
+msgstr "Case sensitive"
+
+msgid "Regular expression"
+msgstr "Regülärer Ausdruck"
+
+msgid "Numerical"
+msgstr "Numerisch"
+
+msgid "Add numbers starting at"
+msgstr "Starte Nummerierung bei Zeichen"
+
+msgid "and increment by"
+msgstr "und inkrementiere mit"
+
+msgid "Insert before the numbers"
+msgstr "Vor den Zahlen einfügen"
+
+msgid "and after"
+msgstr "Nach den Zahlen einfügen"
+
+msgid "Keep existing names"
+msgstr "Behalte existierende Namen"
+
+msgid "Before the numbers"
+msgstr "Bevor den Zahlen"
+
+msgid "After the numbers"
+msgstr "Hinter den Zahlen"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "_Preview"
+msgstr "_Vorschau"
+
+msgid "_Rename"
+msgstr "_Umbennen"
+
+msgid "_Undo"
+msgstr "_Rückgängig"
+
+msgid "Refre_sh"
+msgstr "Aktuallisieren"
+
+msgid "Cannot rename because it already exist."
+msgstr "Datei existiert bereits!"
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Die LOG Datei ist größer als 1MB, you should clear it from the Options menu."
+
+msgid "Only show files or directories that contains"
+msgstr "Suche nach Dateien und Ordnern"
+
+msgid "Clear"
+msgstr "Clear"
+
+#msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+#msgstr ""
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Automatisch mit Nullen auffüllen: Diese Option ist für die numerischen Funktionen. 1 wird durch 01 ersetzt. Wenn Sie bis 999 nummerieren, wird 1 zu 001 usw."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Deaktiviere Sicherheitscheck: Falls diese Option aktiv ist, können Dateien nach dem Umbennen verloren gehen. Nutzen Sie diese Funktion nur, wenn Sie Dateien auf VFAT Partitionen umbennen."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Um das Ende zu kennzeichnen, nutzen Sie eine höhere oder negative Zahl."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Backreferences mit Regulären Ausdrücken können nicht genutzt werden, da $1 eine für Perl bestimmte Variable ist."

@@ -1,0 +1,201 @@
+# Estonian translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+# mihkel <turakas@gmail.com>, 2012.
+#
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"Report-Msgid-Bugs-To: turakas@gmail.com\n"
+"POT-Creation-Date: (null)\n"
+"PO-Revision-Date: 2008-09-03 12:15+0300\n"
+"Last-Translator: mihkel <turakas@gmail.com>\n"
+"Language-Team: Estonian <et@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Fail"
+
+msgid "Quit"
+msgstr "Loobu"
+
+msgid "_Options"
+msgstr "_Valikud"
+
+msgid "Trim spaces"
+msgstr "Eemalda tühikud"
+
+msgid "Zero auto-fill"
+msgstr "Automaatsed nullid"
+
+msgid "Automatic preview"
+msgstr "Automaatne eelvaade"
+
+msgid "Remember last directory"
+msgstr "Pea meeles viimast kataloogi"
+
+msgid "Show hidden files"
+msgstr "Näita peidetud faile"
+
+msgid "Show path"
+msgstr "Näita asukohta"
+
+msgid "Show contents of subdirectories"
+msgstr "Näita alamkataloogide sisu"
+
+msgid "Fullscreen"
+msgstr "Täisekraan"
+
+msgid "Disable security check"
+msgstr "Keela turvakontroll"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "View log"
+msgstr "Vaata logi"
+
+msgid "_Help"
+msgstr "_Abi"
+
+msgid "Contents"
+msgstr "Teave"
+
+msgid "About"
+msgstr "Programmist"
+
+msgid "Name"
+msgstr "Nimi"
+
+msgid "New name"
+msgstr "Uus nimi"
+
+msgid "Files"
+msgstr "Failid"
+
+msgid "Directory"
+msgstr "Kataloog"
+
+msgid "Directories"
+msgstr "Kataloogid"
+
+msgid "Selected"
+msgstr "Valitud"
+
+msgid "Case Change"
+msgstr "Tähtede muutmine"
+
+msgid "ALL UPPERCASE"
+msgstr "KÕIK SUURED"
+
+msgid "all lowercase"
+msgstr "kõik väikesed"
+
+msgid "Only the first letter"
+msgstr "Ainult esimene täht"
+
+msgid "Only The First Letter And After"
+msgstr "Ainult esimene täht ja peale"
+
+msgid "Insert / Delete"
+msgstr "Lisa / Kustuta"
+
+msgid "Insert"
+msgstr "Lisa"
+
+msgid "at position"
+msgstr "positsioonile"
+
+msgid "Delete between"
+msgstr "Kustuta vahelt"
+
+msgid "and"
+msgstr "ja"
+
+msgid "Replace / Remove"
+msgstr "Asenda / Eemalda"
+
+msgid "Replace"
+msgstr "Asenda"
+
+msgid "with"
+msgstr "järgnevaga"
+
+msgid "Case sensitive"
+msgstr "Tõusutundlik"
+
+msgid "Regular expression"
+msgstr "Regulaaravaldis"
+
+msgid "Numerical"
+msgstr "Numbrid"
+
+msgid "Add numbers starting at"
+msgstr "Lisa numbrid alustades"
+
+msgid "and increment by"
+msgstr "ja suurendades"
+
+msgid "Insert before the numbers"
+msgstr "Lisa enne numbreid"
+
+msgid "and after"
+msgstr "ja peale"
+
+msgid "Keep existing names"
+msgstr "Säilita nimed"
+
+msgid "Before the numbers"
+msgstr "Enne numbreid"
+
+msgid "After the numbers"
+msgstr "Peale numbreid"
+
+msgid "No"
+msgstr "Ei"
+
+msgid "_Preview"
+msgstr "_Eelvaade"
+
+msgid "_Rename"
+msgstr "_Nimeta ümber"
+
+msgid "_Undo"
+msgstr "_Unusta"
+
+msgid "Refre_sh"
+msgstr "Vär_skenda"
+
+msgid "Cannot rename because it already exist."
+msgstr "Ei saa ümber nimetada, sest ta on juba olemas."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Logi fail on üle 1M. Sa peaksid ta puhastama Valikute menüüst."
+
+msgid "Only show files or directories that contains"
+msgstr "Näita ainult faile või katalooge, mis sisaldavad"
+
+msgid "Clear"
+msgstr "Puhasta"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Eemalda tühikud: Automaatselt eemalda topelttühikud ja tühikud nime algusest ning lõpust."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Automaatsed nullid: Numbrite kaardil 1 nimetatakse ümber 01-ks, kui kokku on kuni 99 ühikut, 001-ks, kui on kuni 999 ühikut ja nii edasi."
+
+msgid "Automatic preview: This option will be turned off automatically if there's more than 10,000 files or directories listed."
+msgstr "Automaatne eelvaade: Eelvaade lülitataks välja, kui tegutsetakse enam kui 10 000 faili või kataloogiga."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Keela turvakontroll: Kui kasutatakse, siis võib juhtuda, et failid kustutatakse peale ümber nimetamist. Vali ainult siis, kui nimetad faile ümber VFAT (Windowsi) partitsioonil."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Lõpu tähistamiseks kasuta negatiivset numbrit või suurt numbrit."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Regulaaravaldiste tagasiviiteid pole võimalik kasutada, kuna $1 on Perli muutuja."

@@ -1,0 +1,15 @@
+[Nemo Action]
+Name=_Bulk Rename
+Name[ko]=파일명 일괄변경(_B)
+Comment=Open GPrename in %P
+Exec=gprename %P
+Icon-Name=edit-find-replace-symbolic
+#Stock-Id=
+Selection=m
+Extensions=nodirs;
+#Mimetypes=
+#Separator= 
+#Quote=
+Dependencies=gprename;
+#Conditions=
+EscapeSpaces=true

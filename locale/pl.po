@@ -1,0 +1,191 @@
+# Polish translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Plik"
+
+msgid "Quit"
+msgstr "Wyjdź"
+
+msgid "_Options"
+msgstr "Opcj_e"
+
+msgid "Trim spaces"
+msgstr "Wycinaj podwójne, początkowe i końcowe białe znaki"
+
+msgid "Zero auto-fill"
+msgstr "Automatycznie wypełniaj zerem"
+
+msgid "Automatic preview"
+msgstr "Podgląd automatyczny"
+
+#msgid "Remember last directory"
+#msgstr "Pamiętaj ostatni katalog"
+
+msgid "Show hidden files"
+msgstr "Pokaż ukryte pliki"
+
+msgid "Show path"
+msgstr "Pokaż ścieżkę"
+
+msgid "Show contents of subdirectories"
+msgstr "Pokaż pliki rekurencyjnie"
+
+msgid "Fullscreen"
+msgstr "Pełny ekran"
+
+msgid "Disable security check"
+msgstr "Bez bezpiecznego sprawdzania"
+
+msgid "Filter"
+msgstr "Filtr"
+
+msgid "View log"
+msgstr "Zobacz plik historii"
+
+msgid "_Help"
+msgstr "Pomo_c"
+
+msgid "Contents"
+msgstr "Porady"
+
+msgid "About"
+msgstr "O programie"
+
+msgid "Name"
+msgstr "Nazwa pliku"
+
+msgid "New name"
+msgstr "Nowa nazwa"
+
+msgid "Files"
+msgstr "Pliki"
+
+#msgid "Directory"
+#msgstr "Katalog"
+
+msgid "Directories"
+msgstr "Katalogi"
+
+#msgid "Selected"
+#msgstr "Wybrane"
+
+msgid "Case Change"
+msgstr "Zmiana wielkości liter"
+
+msgid "ALL UPPERCASE"
+msgstr "TYLKO DUŻE LITERY"
+
+msgid "all lowercase"
+msgstr "tylko małe litery"
+
+msgid "Only the first letter"
+msgstr "Tylko pierwsza litera"
+
+msgid "Only The First Letter And After"
+msgstr "Tylko Pierwsze Litery Oraz Po"
+
+msgid "Insert / Delete"
+msgstr "Wstaw / Skasuj"
+
+msgid "Insert"
+msgstr "Wstaw"
+
+msgid "at position"
+msgstr "na pozycji"
+
+msgid "Delete between"
+msgstr "Skasuj pomiędzy"
+
+msgid "and"
+msgstr "oraz"
+
+msgid "Replace / Remove"
+msgstr "Zastąp / Usuń"
+
+msgid "Replace"
+msgstr "Zastąp"
+
+msgid "with"
+msgstr "z"
+
+msgid "Case sensitive"
+msgstr "Wrażliwość na rozmiar liter"
+
+msgid "Regular expression"
+msgstr "Użyj wyrażenia regularnego Perla"
+
+msgid "Numerical"
+msgstr "Liczbowo"
+
+msgid "Add numbers starting at"
+msgstr "Zacznij od"
+
+msgid "and increment by"
+msgstr "oraz zwiększ o"
+
+msgid "Insert before the numbers"
+msgstr "Wstaw przed numerami"
+
+msgid "and after"
+msgstr "oraz po"
+
+msgid "Keep existing names"
+msgstr "Zachowaj istniejące nazwy"
+
+msgid "Before the numbers"
+msgstr "Przed numerami"
+
+msgid "After the numbers"
+msgstr "Po numerach"
+
+msgid "No"
+msgstr "Nie zachowuj"
+
+msgid "_Preview"
+msgstr "Po_dgląd"
+
+msgid "_Rename"
+msgstr "_Zmień nazwę"
+
+msgid "_Undo"
+msgstr "_Cofnij"
+
+msgid "Refre_sh"
+msgstr "_Odśwież"
+
+msgid "Cannot rename because it already exist."
+msgstr "Nie mogę zmienić nazwy, ponieważ plik już istnieje"
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Plik historii ma ponad 1M, powinieneś go wyczyścić wybierając Opcje w menu."
+
+msgid "Only show files or directories that contains"
+msgstr "Pokazuj tylko pliki i katalogi, które zawierają"
+
+msgid "Clear"
+msgstr "Wyczyść"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Wycinaj odstępy: automatycznie zamieniaj podwójne odstępy na pojedyncze oraz usuwaj odstępy na początku i  końcu nazw plików."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Automatycznie wypełniaj zerem: Użycie tej opcji w sekcji 'Liczbowo', 1 zmieni się na 01 przy ilości plików nie większej od 10 oraz 001 przy ilości plików nie większej niż 100, itd."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Bez bezpiecznego sprawdzania: użycie tej opcji może usunąć pliki po zmianie nazw. Stosuj tylko, kiedy zmieniasz wielkość liter na partycji VFAT (Windows)."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Aby określić koniec, zastosuj ujemną lub dużą liczbę."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Odwołania wsteczne nie mogą być używane wraz z wyrażeniami regularnymi, gdyż $1 uważany jest za zmienną Perla."

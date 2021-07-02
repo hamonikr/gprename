@@ -1,0 +1,191 @@
+# Dutch translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Bestand"
+
+msgid "Quit"
+msgstr "Sluiten"
+
+msgid "_Options"
+msgstr "_Opties"
+
+msgid "Trim spaces"
+msgstr "Spaties (dubbel, begin, eind) inkorten"
+
+msgid "Zero auto-fill"
+msgstr "Nummers aanvullen met nullen"
+
+msgid "Automatic preview"
+msgstr "Automatische vooruitblik"
+
+#msgid "Remember last directory"
+#msgstr ""
+
+#msgid "Show hidden files"
+#msgstr ""
+
+msgid "Show path"
+msgstr "Toon het volledige pad"
+
+msgid "Show contents of subdirectories"
+msgstr "Toon inhoud submappen"
+
+msgid "Fullscreen"
+msgstr "Gehele scherm gebruiken"
+
+msgid "Disable security check"
+msgstr "Beveiliging uitschakelen (FAT)"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "View log"
+msgstr "Toon log"
+
+msgid "_Help"
+msgstr "_Help"
+
+msgid "Contents"
+msgstr "Tips"
+
+msgid "About"
+msgstr "Info"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "New name"
+msgstr "Nieuwe naam"
+
+msgid "Files"
+msgstr "Bestanden"
+
+#msgid "Directory"
+#msgstr ""
+
+msgid "Directories"
+msgstr "Mappen"
+
+#msgid "Selected"
+#msgstr ""
+
+msgid "Case Change"
+msgstr "(Hoofd)letters"
+
+msgid "ALL UPPERCASE"
+msgstr "HOOFDLETTERS"
+
+msgid "all lowercase"
+msgstr "kleine letters"
+
+msgid "Only the first letter"
+msgstr "Alleen de eerste letter"
+
+msgid "Only The First Letter And After"
+msgstr "De Eerste Letter En Na"
+
+msgid "Insert / Delete"
+msgstr "Tussenvoegen & Verwijderen"
+
+msgid "Insert"
+msgstr "Tussenvoegen:"
+
+msgid "at position"
+msgstr "op positie"
+
+msgid "Delete between"
+msgstr "Verwijder van"
+
+msgid "and"
+msgstr "tot"
+
+msgid "Replace / Remove"
+msgstr "Vervangen"
+
+msgid "Replace"
+msgstr "Vervang"
+
+msgid "with"
+msgstr "met"
+
+msgid "Case sensitive"
+msgstr "Hoofdlettergevoelig"
+
+msgid "Regular expression"
+msgstr "Reguliere expressie"
+
+msgid "Numerical"
+msgstr "Nummering"
+
+msgid "Add numbers starting at"
+msgstr "Vanaf nummer"
+
+msgid "and increment by"
+msgstr "in stappen van"
+
+msgid "Insert before the numbers"
+msgstr "Tekst ervoor"
+
+msgid "and after"
+msgstr "en erachter"
+
+msgid "Keep existing names"
+msgstr "Bestaande namen:"
+
+msgid "Before the numbers"
+msgstr "Voor de nummers"
+
+msgid "After the numbers"
+msgstr "Achter de nummers"
+
+msgid "No"
+msgstr "Wissen"
+
+msgid "_Preview"
+msgstr "_Vooruitblik"
+
+msgid "_Rename"
+msgstr "_Naam wijzigen"
+
+msgid "_Undo"
+msgstr "Ongedaan _Maken"
+
+msgid "Refre_sh"
+msgstr "Her_laden"
+
+msgid "Cannot rename because it already exist."
+msgstr "Probleem: Naam bestaat al."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Het logbestand is groter dan 1M (Wissen via Opties)."
+
+msgid "Only show files or directories that contains"
+msgstr "Toon alleen bestanden en mappen met"
+
+msgid "Clear"
+msgstr "Wissen"
+
+#msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+#msgstr ""
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Nummers aanvullen met nullen: 1, 2 etc. wordt aangevult tot 01, 02 of 001, 002 etc., afhankelijk van het aantal cijfers in het hoogste nummer."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Beveiliging uitschakelen (FAT): Alleen gebruiken voor bestanden op een VFAT (windows) partitie. Bestanden kunnen, op een linux partitie, zonder beveiliging gewist worden na een naamsverandering."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Gebruik een negatief of heel hoog getal om het eind aan te geven."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Z.g. backreferences zijn met reguliere expressies niet mogelijk omdat $1 als een Perl variabele wordt gezien."

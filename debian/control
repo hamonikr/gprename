@@ -1,0 +1,18 @@
+Source: gprename
+Section: utils
+Priority: optional
+Maintainer: Kevin Kim <root@hamonikr.org>
+Build-Depends: debhelper (>= 9.0.0), desktop-file-utils
+Standards-Version: 3.9.6
+
+Package: gprename
+Architecture: all
+Homepage: https://github.com/hamonikr/hamonikr-gprename
+Depends: ${perl:Depends}, ${misc:Depends}, libglib-perl, libgtk2-perl, liblocale-gettext-perl, libintl-perl
+Replaces:
+Description: Complete batch renamer
+ 이 프로그램은 여러개의 폴더 또는 파일 이름을 한꺼번에 변경할 수 있습니다.
+ .
+ GPRename is a complete batch renamer for files and directorys.
+ GPRename easily can replace, remove, insert, delete and number
+ consecutively files and directorys.

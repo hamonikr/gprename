@@ -1,0 +1,194 @@
+# Russian translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Файл"
+
+msgid "Quit"
+msgstr "Выход"
+
+msgid "_Options"
+msgstr "_Опции"
+
+msgid "Trim spaces"
+msgstr "Обрезать пробелы"
+
+msgid "Zero auto-fill"
+msgstr "Добавлять нули"
+
+msgid "Automatic preview"
+msgstr "Автоматический предпросмотр"
+
+msgid "Remember last directory"
+msgstr "Помнить последний каталог"
+
+msgid "Show hidden files"
+msgstr "Показывать скрытые файлы"
+
+msgid "Show path"
+msgstr "Показывать путь"
+
+msgid "Show contents of subdirectories"
+msgstr "Показывать содержимое подкаталогов"
+
+msgid "Fullscreen"
+msgstr "Полный экран"
+
+msgid "Disable security check"
+msgstr "Отключить проверку прав доступа"
+
+msgid "Filter"
+msgstr "Фильтр"
+
+msgid "View log"
+msgstr "Просмотр журнала"
+
+msgid "_Help"
+msgstr "_Справка"
+
+msgid "Contents"
+msgstr "Содержание"
+
+msgid "About"
+msgstr "О программе"
+
+msgid "Name"
+msgstr "Имя"
+
+msgid "New name"
+msgstr "Новое имя"
+
+msgid "Files"
+msgstr "Файлы"
+
+msgid "Directory"
+msgstr "Каталог"
+
+msgid "Directories"
+msgstr "Каталоги"
+
+msgid "Selected"
+msgstr "Выбрано"
+
+msgid "Case Change"
+msgstr "Смена регистра"
+
+msgid "ALL UPPERCASE"
+msgstr "ВЕРХНИЙ РЕГИСТР"
+
+msgid "all lowercase"
+msgstr "нижний регистр"
+
+msgid "Only the first letter"
+msgstr "Только первая буква"
+
+msgid "Only The First Letter And After"
+msgstr "Только Первая Буква И После"
+
+msgid "Insert / Delete"
+msgstr "Вставить / Удалить"
+
+msgid "Insert"
+msgstr "Вставить"
+
+msgid "at position"
+msgstr "в позицию"
+
+msgid "Delete between"
+msgstr "Удалить между"
+
+msgid "and"
+msgstr "и"
+
+msgid "Replace / Remove"
+msgstr "Заменить / Удалить"
+
+msgid "Replace"
+msgstr "Заменить"
+
+msgid "with"
+msgstr "на"
+
+msgid "Case sensitive"
+msgstr "С учетом регистра"
+
+msgid "Regular expression"
+msgstr "Регулярное выражение"
+
+msgid "Numerical"
+msgstr "Нумерация"
+
+msgid "Add numbers starting at"
+msgstr "Добавить нумерацию начиная с"
+
+msgid "and increment by"
+msgstr "и с шагом"
+
+msgid "Insert before the numbers"
+msgstr "Вставить до счетчика"
+
+msgid "and after"
+msgstr "и после"
+
+msgid "Keep existing names"
+msgstr "Сохранить текущие имена"
+
+msgid "Before the numbers"
+msgstr "До счетчика"
+
+msgid "After the numbers"
+msgstr "После счетчика"
+
+msgid "No"
+msgstr "Не сохранять"
+
+msgid "_Preview"
+msgstr "_Предпросмотр"
+
+msgid "_Rename"
+msgstr "Пере_именовать"
+
+msgid "_Undo"
+msgstr "_Отмена"
+
+msgid "Refre_sh"
+msgstr "О_бновить"
+
+msgid "Cannot rename because it already exist."
+msgstr "Невозможно переименовать, т. к. объект с таким именем существует."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Размер файла журнала более 1 Мегабайта, вы можете его очистить из меню Опции."
+
+msgid "Only show files or directories that contains"
+msgstr "Показывать только файлы и каталоги, содержащие"
+
+msgid "Clear"
+msgstr "Очистить"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Обрезать пробелы: Автоматически превращать два пробела в один, и удалять пробелы в начале и в конце имён."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Добавлять нули: В режиме нумерации 1 будет иметь вид 01 если счет до 99, и 001 если до 999 и так далее."
+
+msgid "Automatic preview: This option will be turned off automatically if there's more than 10,000 files or directories listed."
+msgstr "Автоматический предпросмотр: Опция будет отключена автоматически, если под переименование подпадает более 10 000 файлов или каталогов."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Отключить проверку прав доступа: Если опция включена, возможно удаление файлов после переименования. Используйте опцию только при переименовании объектов на VFAT (Windows) разделе."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Чтобы указать конец, используйте отрицательное или большее число."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Обратные ссылки в регулярных выражениях не могут быть использованы, т. к. $1 означает переменную Perl."
