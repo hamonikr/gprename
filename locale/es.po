@@ -1,191 +1,197 @@
-# Spanish translation
-# Copyright (C) 2012 GPRename
-# This file is distributed under the same license as the GPRename package.
-# gprename-users@lists.sourceforge.net, 2012
-
 msgid ""
 msgstr ""
-"Project-Id-Version: GPRename 2.7\n"
+"Project-Id-Version: GPRename\n"
+"Last-Translator: Alexis Puente Montiel <miscelaneanatural@yahoo.es>\n"
+"Report-Msgid-Bugs-To: Alexis Puente Montiel <miscelaneanatural@yahoo.es>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-msgid "_File"
-msgstr "Archivo"
-
-msgid "Quit"
-msgstr "Salir"
-
-#msgid "_Options"
-#msgstr ""
-
-#msgid "Trim spaces"
-#msgstr ""
-
-msgid "Zero auto-fill"
-msgstr "Auto-relleno de ceros"
-
-#msgid "Automatic preview"
-#msgstr ""
-
-#msgid "Remember last directory"
-#msgstr ""
-
-#msgid "Show hidden files"
-#msgstr ""
-
-#msgid "Show path"
-#msgstr ""
-
-#msgid "Show contents of subdirectories"
-#msgstr ""
-
-#msgid "Fullscreen"
-#msgstr ""
-
-#msgid "Disable security check"
-#msgstr ""
-
-#msgid "Filter"
-#msgstr ""
-
-#msgid "View log"
-#msgstr ""
-
-msgid "_Help"
-msgstr "Ayuda"
-
-#msgid "Contents"
-#msgstr ""
+msgid "ALL UPPERCASE"
+msgstr "TODO MAYÚSCULAS"
 
 msgid "About"
 msgstr "Acerca de"
 
-msgid "Name"
-msgstr "Nombre de archivo"
+msgid "Add numbers starting at"
+msgstr "Añadir números a partir de"
 
-msgid "New name"
-msgstr "Nuevo nombre"
+msgid "After the numbers"
+msgstr "Después de los números"
 
-msgid "Files"
-msgstr "Archivo"
+msgid "Automatic preview"
+msgstr "Previsualización automática"
 
-#msgid "Directory"
-#msgstr ""
+msgid "Automatic preview: This option will be turned off automatically if there's more than 10,000 files or directories listed."
+msgstr "Previsualización automática: Esta opción será desactivada automáticamente si hay más de 10.000 archivos o carpetas listados."
 
-msgid "Directories"
-msgstr "Directorio"
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Las retro-referencias con expresiones regulares no pueden usarse porque $1 se considera una variable Perl."
 
-#msgid "Selected"
-#msgstr ""
+msgid "Before the numbers"
+msgstr "Antes de los números"
+
+msgid "Cannot rename because it already exist."
+msgstr "No puede renombrarse porque ya existe."
+
+msgid "Cannot rename because the filename is too long."
+msgstr "No puede renombrarse porque el nombre de archivo es demasiado largo."
 
 msgid "Case Change"
 msgstr "Mayúsculas / Minúsculas"
 
-msgid "ALL UPPERCASE"
-msgstr "TODO MAYÚSCULAS"
+msgid "Case sensitive"
+msgstr "Sensible a mayúsculas / minúsculas"
 
-msgid "all lowercase"
-msgstr "todo minúsculas"
+msgid "Clear"
+msgstr "Limpiar"
 
-#msgid "Only the first letter"
-#msgstr ""
+msgid "Contents"
+msgstr "Contenido"
 
-msgid "Only The First Letter And After"
-msgstr "Solo Primeras Letras y Después De"
+msgid "Delete between"
+msgstr "Eliminar entre las posiciones"
 
-msgid "Insert / Delete"
-msgstr "Insertar / Borrar"
+msgid "Directories"
+msgstr "Carpetas"
+
+msgid "Directory"
+msgstr "Carpeta"
+
+msgid "Disable security check"
+msgstr "Desactivar la comprobación de seguridad"
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Desactivar la comprobación de seguridad: Si se usa, puede eliminarse archivos después de renombrar, solo usarlo para renombrar entre mayúsculas y minúsculas en una partición VFAT (Windows)."
+
+msgid "Files"
+msgstr "Archivos"
+
+msgid "Filter"
+msgstr "Filtro"
+
+msgid "Fullscreen"
+msgstr "Pantalla completa"
 
 msgid "Insert"
 msgstr "Insertar"
 
-msgid "at position"
-msgstr "en posición"
+msgid "Insert / Delete"
+msgstr "Insertar / Eliminar"
 
-msgid "Delete between"
-msgstr "Borrar entre"
+msgid "Insert before the numbers"
+msgstr "Insertar antes"
 
-msgid "and"
-msgstr "y"
+msgid "Keep existing names"
+msgstr "Mantener los nombres existentes"
 
-msgid "Replace / Remove"
-msgstr "Reemplazar / Quitar"
+msgid "Name"
+msgstr "Nombre"
 
-msgid "Replace"
-msgstr "Reemplazar"
+msgid "New name"
+msgstr "Nuevo nombre"
 
-msgid "with"
-msgstr "con"
-
-msgid "Case sensitive"
-msgstr "Atiende a MAYÚSCULAS / minúsculas."
-
-msgid "Regular expression"
-msgstr "Expresiones regulares"
+msgid "No"
+msgstr "No"
 
 msgid "Numerical"
 msgstr "Numérico"
 
-msgid "Add numbers starting at"
-msgstr "Empezar en"
+msgid "Only The First Letter And After"
+msgstr "Solo la primera letra y después de"
 
-msgid "and increment by"
-msgstr "y aumentar en"
+msgid "Only the first letter and after"
+msgstr "Solo la primera letra y después de"
 
-msgid "Insert before the numbers"
-msgstr "Insertar antes de los números"
+msgid "Only show files or directories that contains"
+msgstr "Solo mostrar los archivos o carpetas que contienen"
 
-msgid "and after"
-msgstr "y despuésy después"
+msgid "Only the first letter"
+msgstr "Solo la primera letra"
 
-#msgid "Keep existing names"
-#msgstr ""
+msgid "Quit"
+msgstr "Cerrar"
 
-#msgid "Before the numbers"
-#msgstr ""
+msgid "Refre_sh"
+msgstr "Refre_scar"
 
-#msgid "After the numbers"
-#msgstr ""
+msgid "Regular expression"
+msgstr "Expresión regular"
 
-#msgid "No"
-#msgstr ""
+msgid "Remember last directory"
+msgstr "Recordar la última carpeta"
 
-#msgid "_Preview"
-#msgstr ""
+msgid "Replace"
+msgstr "Sustituir"
+
+msgid "Replace / Remove"
+msgstr "Sustituir / Eliminar"
+
+msgid "Selected"
+msgstr "Seleccionado"
+
+msgid "Show contents of subdirectories"
+msgstr "Mostrar el contenido de las subcarpetas"
+
+msgid "Show hidden files"
+msgstr "Mostrar los archivos ocultos"
+
+msgid "Show path"
+msgstr "Mostrar ruta"
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "El archivo de registro es mayor de 1 MiB, debería borrarlo desde el menú Opciones."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Para especificar el final, use un número negativo o un número elevado."
+
+msgid "Trim spaces"
+msgstr "Recortar los espacios"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Recortar los espacios: Automáticamente recortar los espacios dobles a espacios únicos y eliminar espacios al principio o al final de los nombres."
+
+msgid "View log"
+msgstr "Ver el registro"
+
+msgid "Zero auto-fill"
+msgstr "Autorrellenar con ceros"
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Autorrellenar con ceros: Para la sección numérica, 1 será nombrado como 01 si va hasta 99, como 001 si va hasta 999,..."
+
+msgid "_File"
+msgstr "Archivo"
+
+msgid "_Help"
+msgstr "Ayuda"
+
+msgid "_Options"
+msgstr "_Opciones"
+
+msgid "_Preview"
+msgstr "_Previsualizar"
 
 msgid "_Rename"
-msgstr "Aplicar"
+msgstr "_Renombrar"
 
 msgid "_Undo"
 msgstr "Deshacer"
 
-#msgid "Refre_sh"
-#msgstr ""
+msgid "all lowercase"
+msgstr "todo minúsculas"
 
-#msgid "Cannot rename because it already exist."
-#msgstr ""
+msgid "and"
+msgstr "y"
 
-#msgid "The log file is over 1M, you should clear it from the Options menu."
-#msgstr ""
+msgid "and after"
+msgstr "y después"
 
-#msgid "Only show files or directories that contains"
-#msgstr ""
+msgid "and increment by"
+msgstr "con incremento de"
 
-#msgid "Clear"
-#msgstr ""
+msgid "at position"
+msgstr "en la posición"
 
-#msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
-#msgstr ""
-
-#msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
-#msgstr ""
-
-#msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
-#msgstr ""
-
-#msgid "To specify the end, use a negative number or a high number."
-#msgstr ""
-
-#msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
-#msgstr ""
+msgid "with"
+msgstr "con"

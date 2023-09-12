@@ -1,0 +1,270 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-27 13:52-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: bin/gprename:164 bin/gprename:711
+msgid "_File"
+msgstr ""
+
+#: bin/gprename:170
+msgid "Quit"
+msgstr ""
+
+#: bin/gprename:176 bin/gprename:1433
+msgid "_Options"
+msgstr ""
+
+#: bin/gprename:182
+msgid "Trim spaces"
+msgstr ""
+
+#: bin/gprename:187
+msgid "Zero auto-fill"
+msgstr ""
+
+#: bin/gprename:192
+msgid "Automatic preview"
+msgstr ""
+
+#: bin/gprename:197
+msgid "Remember last directory"
+msgstr ""
+
+#: bin/gprename:202
+msgid "Show hidden files"
+msgstr ""
+
+#: bin/gprename:207
+msgid "Show path"
+msgstr ""
+
+#: bin/gprename:211
+msgid "Show contents of subdirectories"
+msgstr ""
+
+#: bin/gprename:215
+msgid "Fullscreen"
+msgstr ""
+
+#: bin/gprename:220
+msgid "Disable security check"
+msgstr ""
+
+#: bin/gprename:224
+msgid "Filter"
+msgstr ""
+
+#: bin/gprename:228
+msgid "View log"
+msgstr ""
+
+#: bin/gprename:246
+msgid "_Help"
+msgstr ""
+
+#: bin/gprename:252
+msgid "Contents"
+msgstr ""
+
+#: bin/gprename:257 bin/gprename:1464
+msgid "About"
+msgstr ""
+
+#: bin/gprename:277 bin/gprename:294 bin/gprename:830 bin/gprename:838
+msgid "Name"
+msgstr ""
+
+#: bin/gprename:278 bin/gprename:295 bin/gprename:830 bin/gprename:838
+msgid "New name"
+msgstr ""
+
+#: bin/gprename:302 bin/gprename:715
+msgid "Files"
+msgstr ""
+
+#: bin/gprename:303 bin/gprename:718
+msgid "Directories"
+msgstr ""
+
+#: bin/gprename:365
+msgid "Case Change"
+msgstr ""
+
+#: bin/gprename:367
+msgid "ALL UPPERCASE"
+msgstr ""
+
+#: bin/gprename:368
+msgid "all lowercase"
+msgstr ""
+
+#: bin/gprename:369
+msgid "Only the first letter"
+msgstr ""
+
+#: bin/gprename:370
+msgid "Only The First Letter And After"
+msgstr ""
+
+#: bin/gprename:401 bin/gprename:1440
+msgid "Insert / Delete"
+msgstr ""
+
+#: bin/gprename:404
+msgid "Insert"
+msgstr ""
+
+#: bin/gprename:410
+msgid "at position"
+msgstr ""
+
+#: bin/gprename:417
+msgid "Delete between"
+msgstr ""
+
+#: bin/gprename:423
+msgid "and"
+msgstr ""
+
+#: bin/gprename:447 bin/gprename:1442
+msgid "Replace / Remove"
+msgstr ""
+
+#: bin/gprename:449
+msgid "Replace"
+msgstr ""
+
+#: bin/gprename:456
+msgid "with"
+msgstr ""
+
+#: bin/gprename:463
+msgid "Case sensitive"
+msgstr ""
+
+#: bin/gprename:465
+msgid "Regular expression"
+msgstr ""
+
+#: bin/gprename:485
+msgid "Numerical"
+msgstr ""
+
+#: bin/gprename:488
+msgid "Add numbers starting at"
+msgstr ""
+
+#: bin/gprename:493
+msgid "and increment by"
+msgstr ""
+
+#: bin/gprename:500
+msgid "Insert before the numbers"
+msgstr ""
+
+#: bin/gprename:506
+msgid "and after"
+msgstr ""
+
+#: bin/gprename:514
+msgid "Keep existing names"
+msgstr ""
+
+#: bin/gprename:515
+msgid "Before the numbers"
+msgstr ""
+
+#: bin/gprename:516
+msgid "After the numbers"
+msgstr ""
+
+#: bin/gprename:517
+msgid "No"
+msgstr ""
+
+#: bin/gprename:549
+msgid "_Preview"
+msgstr ""
+
+#: bin/gprename:555
+msgid "_Rename"
+msgstr ""
+
+#: bin/gprename:561
+msgid "_Undo"
+msgstr ""
+
+#: bin/gprename:566
+msgid "Refre_sh"
+msgstr ""
+
+#: bin/gprename:717
+msgid "Directory"
+msgstr ""
+
+#: bin/gprename:723
+msgid "Selected"
+msgstr ""
+
+#: bin/gprename:830
+msgid "Cannot rename because it already exist."
+msgstr ""
+
+#: bin/gprename:838
+msgid "Cannot rename because the filename is too long."
+msgstr ""
+
+#: bin/gprename:1183
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr ""
+
+#: bin/gprename:1273
+msgid "Only show files or directories that contains"
+msgstr ""
+
+#: bin/gprename:1294
+msgid "Clear"
+msgstr ""
+
+#: bin/gprename:1419
+msgid "Tips"
+msgstr ""
+
+#: bin/gprename:1436
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr ""
+
+#: bin/gprename:1437
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr ""
+
+#: bin/gprename:1438
+msgid "Automatic preview: This option will be turned off automatically if there's more than 10,000 files or directories listed."
+msgstr ""
+
+#: bin/gprename:1439
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr ""
+
+#: bin/gprename:1441
+msgid "To specify the end, use a negative number or a high number."
+msgstr ""
+
+#: bin/gprename:1443
+msgid "Backreferences with Regular expression are :1, :2, ..."
+msgstr ""

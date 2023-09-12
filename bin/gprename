@@ -13,22 +13,17 @@
 # file COPYING that came with this software for details.
 
 # Home Page                        : http://gprename.sourceforge.net
-# Wikipedia                        : http://en.wikipedia.org/wiki/GPRename
 # Subversion Web Browsing          : http://gprename.svn.sourceforge.net/viewvc/gprename
-# Subversion Manual                : http://svnbook.red-bean.com/
-# GTK2-Perl FAQ                    : http://live.gnome.org/GTK2-Perl/FrequentlyAskedQuestions
-# GTK2-Perl Tutorials              : http://gtk2-perl.sourceforge.net/doc
-# GTK2-Perl POD                    : http://gtk2-perl.sourceforge.net/doc/pod/index.html
-# Makefile tutorial                : http://mrbook.org/tutorials/make/
-# GNOME Human Interface Guidelines : http://developer.gnome.org/projects/gup/hig/2.0/index.html
-# Linux Filesystem Hierarchy       : http://tldp.org/LDP/Linux-Filesystem-Hierarchy/html/usr.html
+# Perl Gtk3                        : https://metacpan.org/pod/Gtk3
+# Gtk-Perl                         : https://wiki.gnome.org/Projects/GTK-Perl
+# GNOME Human Interface Guidelines : https://developer.gnome.org/hig/stable/
 # Tutorial on gettext              : http://cpan.uwinnipeg.ca/htdocs/gettext/README.html
-# Gnu gettext                      : http://www.gnu.org/software/gettext/
-# .desktop specification           : http://www.freedesktop.org/wiki/Howto_desktop_files/
+# GNU gettext                      : https://www.gnu.org/software/gettext/
+# .desktop specification           : https://www.freedesktop.org/wiki/Howto_desktop_files/
 
 # To create a gprename.po template file :
 # cd bin
-# xgettext --from-code=UTF-8 -o gprename.po --no-wrap --language=Perl gprename
+# xgettext --from-code=UTF-8 -o locale/gprename.po --no-wrap --language=Perl bin/gprename
 
 # To start GPRename with another language :
 # LANGUAGE=fr gprename
@@ -45,32 +40,38 @@
 # Initialisation                                                     #
 ######################################################################
 
-use Gtk2 -init;
+use strict;                   # require variables to be declared before using them and distrust barewords
+use warnings;                 # print warning messages on the command line
+use Gtk3 -init;
 use File::Spec::Functions;    # for the tree
 use Cwd;                      # to get the current directory
 use Encode qw(decode encode); # to handle accents, with the encode and decode function
 use Fcntl ':flock';           # for the flock function in &read_settings
-use strict;                   # require variables to be declared before using them and distrust barewords
-use warnings;                 # print warning messages on the command line
 use Glib qw/TRUE FALSE/;      # to use the bareword TRUE and FALSE
 use utf8;                     # Because this file is in UTF8 and because we're using hardcoded accent in Help/About
-use Gtk2::Pango;              # To use text markup in TextView
+use Pango;                    # To use text markup in TextView
 use POSIX;                    # for setlocale()
 use Locale::gettext;          # for l18n
-use Gtk2::Gdk::Keysyms;       # for keyboard shortcuts
 
 # set the locale
 setlocale(LC_ALL, '');
-bindtextdomain( 'gprename', '@INSTALLDIR@/share/locale');
+# bindtextdomain( 'gprename', '/usr/local/share/locale');
+bindtextdomain( 'gprename', '/usr/share/locale');
 textdomain( 'gprename' );
 
-# Change the font to courier new for the Tree and the SimpleList
-Gtk2::Rc->parse_string(<<__);
-style 'my_text' { font_name ='courier new' }
-widget '*TreeView' style 'my_text'
-__
+sub gtext {
+    my $text = shift;
+    my $local_text = decode('utf8', gettext($text));
+    if ($local_text && length($local_text) > 0) {
+       return $local_text;
+    }
+    return $text;
+}
 
 # Declaration of global variables
+# TODO: This should respect XDG_CONFIG_HOME
+# See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+# for details.
 my $setting_file = "$ENV{'HOME'}/.config/gprename/gprename";
 my $log_file = "$ENV{'HOME'}/.config/gprename/gprename_log";
 if ( ! -e "$ENV{'HOME'}/.config" ) { `mkdir "$ENV{'HOME'}/.config"`; }
@@ -91,14 +92,14 @@ my $exist=0;                  # For security check, if a name already exist
 my $status_bar_files=0;
 my $status_bar_dirs=0;
 my $status_bar_selected=0;
-my $str_gprename_version='5';
+my $str_gprename_version='20230429';
 
 # Hold a list of the Name and New Name column of files or directories
 # These are filled when calling &preview
 my @column_name=();
 my @column_new_name=();
 
-# Load settings file "~/.gprename"
+# Load settings
 $settings{'trim_spaces'}        = TRUE;
 $settings{'auto_preview'}       = 0;
 $settings{'zero_autofill'}      = TRUE;
@@ -110,33 +111,44 @@ $settings{'hpaned_width'}       = 200;
 $settings{'show_hidden_files'}  = 0;
 &read_settings;
 
+# Override style for GtkTreeView to Courier New with fallback.
+my $css_provider = Gtk3::CssProvider->new;
+$css_provider->load_from_data("treeview { font-family: Courier New, Monospace; }", -1);
+
+my $display = Gtk3::Gdk::Display::get_default();
+my $screen = $display->get_default_screen;
+Gtk3::StyleContext::add_provider_for_screen(
+   $screen, $css_provider, Gtk3::STYLE_PROVIDER_PRIORITY_APPLICATION);
+
 
 ######################################################################
 # Main window                                                        #
 ######################################################################
 
 # Create a window
-my $window = new Gtk2::Window( 'toplevel' );
+my $window = new Gtk3::Window( 'toplevel' );
 $window->set_position( 'none' );
 $window->set_title( 'GPRename' );
 $window->resize( $settings{'width'}, $settings{'height'} );
 $window->signal_connect( 'delete_event', \&quit );
 $window->show();
 
-my $accel_group = new Gtk2::AccelGroup;
+
+my $accel_group = new Gtk3::AccelGroup;
 $window->add_accel_group( $accel_group );
 
 # Set the window icon
-my $icon = '@INSTALLDIR@/share/icons/gprename.png';
-my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $icon );
+my $icon = '/usr/share/icons/gprename.png';
+my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file( $icon );
 $window->set_icon( $pixbuf );
 
 # Create a vertical main pane
-my $main_paned = new Gtk2::VPaned();
+my $main_paned = new Gtk3::Paned('vertical');
 $window->add( $main_paned );
 
 # Create a vbox for menubar and pane
-my $top_vbox = new Gtk2::VBox( FALSE, 0 );
+# TODO: GtkVBox/GtkBox should be migrated to GtkGrid
+my $top_vbox = new Gtk3::Box( 'vertical', 0 ); $top_vbox->set_homogeneous(FALSE);
 $main_paned->pack1( $top_vbox, TRUE, TRUE );
 
 
@@ -144,76 +156,77 @@ $main_paned->pack1( $top_vbox, TRUE, TRUE );
 # Menubar                                                            #
 ######################################################################
 
+
 # Create the menubar
-my $menubar = new Gtk2::MenuBar();
+my $menubar = new Gtk3::MenuBar();
 $top_vbox->pack_start( $menubar, FALSE, FALSE, 0 );
 
 # Menu : File
-my $file_mm = new Gtk2::MenuItem( decode('utf8',gettext('_File')) );
+my $file_mm = new Gtk3::MenuItem( decode('utf8',gettext('_File')) );
 $menubar->append( $file_mm );
-my $file_menu = new Gtk2::Menu();
+my $file_menu = new Gtk3::Menu();
 $file_mm->set_submenu( $file_menu );
 
 # File - Quit
-my $quit_mi = new Gtk2::MenuItem( decode('utf8',gettext('Quit')) );
+my $quit_mi = new Gtk3::MenuItem( decode('utf8',gettext('Quit')) );
 $file_menu->append($quit_mi);
 $quit_mi->signal_connect( 'activate', \&quit );
-$quit_mi->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Q}, ['control-mask'], ['visible'] );
+$quit_mi->add_accelerator( 'activate', $accel_group, Gtk3::Gdk::KEY_Q, ['control-mask'], ['visible'] );
 
 # Menu : Options
-my $options_mi = new Gtk2::MenuItem( decode('utf8',gettext('_Options')) );
+my $options_mi = new Gtk3::MenuItem( decode('utf8',gettext('_Options')) );
 $menubar->append( $options_mi );
-my $options_menu = new Gtk2::Menu();
+my $options_menu = new Gtk3::Menu();
 $options_mi->set_submenu( $options_menu );
 
 # Options - Automatically trim spaces at the beginning
-my $trim_spaces_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Trim spaces')) );
+my $trim_spaces_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Trim spaces')) );
 if ( $settings{'trim_spaces'} ) { $trim_spaces_rmi->set_active( TRUE ); }
 $trim_spaces_rmi->signal_connect( 'activate', \&options_trim_spaces );
 
 # Options - Zero auto-fill
-my $zero_autofill_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Zero auto-fill')) );
+my $zero_autofill_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Zero auto-fill')) );
 if ( $settings{'zero_autofill'} ) { $zero_autofill_rmi->set_active( TRUE ); }
 $zero_autofill_rmi->signal_connect( 'activate', \&options_zero_autofill );
 
 # Options - Automatic preview
-my $auto_preview_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Automatic preview')) );
+my $auto_preview_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Automatic preview')) );
 if ( $settings{'auto_preview'} ) { $auto_preview_rmi->set_active( TRUE  ); }
 $auto_preview_rmi->signal_connect( 'activate', \&options_auto_preview );
 
 # Options - Remember last directory
-my $remember_last_directory_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Remember last directory')) );
+my $remember_last_directory_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Remember last directory')) );
 if ( $settings{'remember_last_directory'} ) { $remember_last_directory_rmi->set_active( TRUE ); }
 $remember_last_directory_rmi->signal_connect( 'activate', \&options_remember_last_directory );
 
 # Options - Show hidden files
-my $show_hidden_files_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show hidden files')) );
+my $show_hidden_files_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Show hidden files')) );
 if ( $settings{'show_hidden_files'} ) { $show_hidden_files_rmi->set_active( TRUE ); }
 $show_hidden_files_rmi->signal_connect( 'activate', \&options_show_hidden_files );
 
 # Options - Show Path
-my $show_path_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show path')) );
+my $show_path_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Show path')) );
 $show_path_rmi->signal_connect( 'activate', \&options_show_path );
 
 # Options - Recursive renaming
-my $recursive_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Show contents of subdirectories')) );
+my $recursive_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Show contents of subdirectories')) );
 $recursive_rmi->signal_connect( 'activate', \&options_recursive );
 
 # Options - Fullscreen
-my $fullscreen_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Fullscreen')) );
+my $fullscreen_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Fullscreen')) );
 if ( $settings{'fullscreen'} ) { $fullscreen_rmi->set_active( TRUE ); $window->fullscreen; }
 $fullscreen_rmi->signal_connect( 'activate', \&options_fullscreen );
 
 # Options - Disable security check
-my $security_rmi = new Gtk2::CheckMenuItem( decode('utf8',gettext('Disable security check')) );
+my $security_rmi = new Gtk3::CheckMenuItem( decode('utf8',gettext('Disable security check')) );
 $security_rmi->signal_connect( 'activate', \&options_security );
 
 # Options - Filter
-my $filter_mi = new Gtk2::MenuItem( decode('utf8',gettext('Filter')) . '...' );
+my $filter_mi = new Gtk3::MenuItem( decode('utf8',gettext('Filter')) . '...' );
 $filter_mi->signal_connect( 'activate', \&options_filter );
 
 # Options - View Log
-my $view_log_mi = new Gtk2::MenuItem( decode('utf8',gettext('View log')) . '...' );
+my $view_log_mi = new Gtk3::MenuItem( decode('utf8',gettext('View log')) . '...' );
 $view_log_mi->signal_connect( 'activate', \&options_view_log );
 
 $options_menu->append( $trim_spaces_rmi );
@@ -225,24 +238,24 @@ $options_menu->append( $show_hidden_files_rmi );
 $options_menu->append( $show_path_rmi );
 $options_menu->append( $fullscreen_rmi );
 $options_menu->append( $security_rmi );
-$options_menu->append( Gtk2::SeparatorMenuItem->new() );
+$options_menu->append( Gtk3::SeparatorMenuItem->new() );
 $options_menu->append( $filter_mi );
-$options_menu->append( Gtk2::SeparatorMenuItem->new() );
+$options_menu->append( Gtk3::SeparatorMenuItem->new() );
 $options_menu->append( $view_log_mi );
 
 # Menu : Help
-my $help_mm = new Gtk2::MenuItem( decode('utf8',gettext('_Help')) );
+my $help_mm = new Gtk3::MenuItem( decode('utf8',gettext('_Help')) );
 $menubar->append($help_mm);
-my $help_menu = new Gtk2::Menu();
+my $help_menu = new Gtk3::Menu();
 $help_mm->set_submenu($help_menu);
 
 # Help - Contents
-my $contents_mi = new Gtk2::MenuItem( decode('utf8',gettext('Contents')) );
+my $contents_mi = new Gtk3::MenuItem( decode('utf8',gettext('Contents')) );
 $help_menu->append($contents_mi);
 $contents_mi->signal_connect( 'activate', \&help_contents );
 
 # Help - About
-my $about_mi = new Gtk2::MenuItem( decode('utf8',gettext('About')) );
+my $about_mi = new Gtk3::MenuItem( decode('utf8',gettext('About')) );
 $help_menu->append($about_mi);
 $about_mi->signal_connect( 'activate', \&help_about );
 
@@ -252,14 +265,14 @@ $about_mi->signal_connect( 'activate', \&help_about );
 ######################################################################
 
 # Create the list of Files
-my $sw_filelist = new Gtk2::ScrolledWindow( undef, undef );
+my $sw_filelist = new Gtk3::ScrolledWindow( undef, undef );
 $sw_filelist->set_policy( 'automatic', 'automatic' );
-my $ls_files = Gtk2::ListStore->new( qw(Glib::String), qw(Glib::String) );
-my $tv_files = Gtk2::TreeView->new( $ls_files );
+my $ls_files = Gtk3::ListStore->new( qw(Glib::String), qw(Glib::String) );
+my $tv_files = Gtk3::TreeView->new( $ls_files );
 $tv_files->set_rules_hint ( TRUE ); # property to draw rows in alternate colors
 $tv_files->set_headers_visible ( TRUE );
-$tv_files->append_column ( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
-$tv_files->append_column ( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 1 ) );
+$tv_files->append_column ( Gtk3::TreeViewColumn->new_with_attributes( '', Gtk3::CellRendererText->new(), text => 0 ) );
+$tv_files->append_column ( Gtk3::TreeViewColumn->new_with_attributes( '', Gtk3::CellRendererText->new(), text => 1 ) );
 $tv_files->get_column(0)->set_resizable ( TRUE );
 $tv_files->get_column(1)->set_resizable ( TRUE );
 $tv_files->get_column(0)->set_title( decode('utf8',gettext('Name')) );
@@ -269,14 +282,14 @@ $tv_files->get_selection->set_mode( 'multiple' );
 $sw_filelist->add( $tv_files );
 
 # Create the list of Directories
-my $sw_dirlist = new Gtk2::ScrolledWindow( undef, undef );
+my $sw_dirlist = new Gtk3::ScrolledWindow( undef, undef );
 $sw_dirlist->set_policy( 'automatic', 'automatic' );
-my $ls_dirs = Gtk2::ListStore->new( qw(Glib::String), qw(Glib::String) );
-my $tv_dirs = Gtk2::TreeView->new( $ls_dirs );
+my $ls_dirs = Gtk3::ListStore->new( qw(Glib::String), qw(Glib::String) );
+my $tv_dirs = Gtk3::TreeView->new( $ls_dirs );
 $tv_dirs->set_rules_hint( TRUE ); # property to draw rows in alternate colors
 $tv_dirs->set_headers_visible( TRUE );
-$tv_dirs->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
-$tv_dirs->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 1 ) );
+$tv_dirs->append_column( Gtk3::TreeViewColumn->new_with_attributes( '', Gtk3::CellRendererText->new(), text => 0 ) );
+$tv_dirs->append_column( Gtk3::TreeViewColumn->new_with_attributes( '', Gtk3::CellRendererText->new(), text => 1 ) );
 $tv_dirs->get_column(0)->set_resizable( TRUE );
 $tv_dirs->get_column(1)->set_resizable( TRUE );
 $tv_dirs->get_column(0)->set_title( decode('utf8',gettext('Name')) );
@@ -286,23 +299,23 @@ $tv_dirs->get_selection->set_mode( 'multiple' );
 $sw_dirlist->add( $tv_dirs );
 
 # Create the Notebook and put the Files and Directories list in it
-my $file_dir_notebook = new Gtk2::Notebook();
-$file_dir_notebook->append_page( $sw_filelist, decode('utf8',gettext('Files')) );
-$file_dir_notebook->append_page( $sw_dirlist,  decode('utf8',gettext('Directories')) );
+my $file_dir_notebook = new Gtk3::Notebook();
+$file_dir_notebook->append_page( $sw_filelist, Gtk3::Label->new(decode('utf8',gettext('Files'))) );
+$file_dir_notebook->append_page( $sw_dirlist,  Gtk3::Label->new(decode('utf8',gettext('Directories'))) );
 
 $file_dir_notebook->set_current_page (0);
 $file_dir_notebook->signal_connect_after( 'switch-page', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 
 # Create the Tree
-my $sw_tree = Gtk2::ScrolledWindow->new;
+my $sw_tree = Gtk3::ScrolledWindow->new;
 $sw_tree->set_policy( 'automatic', 'automatic' );
-my $ts_tree = Gtk2::TreeStore->new( qw(Glib::String) );
-my $tv_tree = Gtk2::TreeView->new( $ts_tree );
+my $ts_tree = Gtk3::TreeStore->new( qw(Glib::String) );
+my $tv_tree = Gtk3::TreeView->new( $ts_tree );
 my $iter = $ts_tree->append( undef );
 $ts_tree->set( $iter, 0 => File::Spec->rootdir() );
-$tv_tree->append_column( Gtk2::TreeViewColumn->new_with_attributes( '', Gtk2::CellRendererText->new(), text => 0 ) );
+$tv_tree->append_column( Gtk3::TreeViewColumn->new_with_attributes( '', Gtk3::CellRendererText->new(), text => 0 ) );
 $tv_tree->set_headers_visible( FALSE );
-$sw_tree->add_with_viewport( $tv_tree );
+$sw_tree->add( $tv_tree );
 $tv_tree->signal_connect( 'row_expanded',   \&populate_tree    );
 $tv_tree->signal_connect( 'cursor_changed', \&populate_listing );
 
@@ -310,30 +323,33 @@ $tv_tree->signal_connect( 'cursor_changed', \&populate_listing );
 $ts_tree->set( $ts_tree->append( $tv_tree->get_model->get_iter_first ), 0, 'anything' );
 $tv_tree->expand_to_path( $tv_tree->get_model->get_path( $tv_tree->get_model->get_iter_first ) );
 
-# Create an HPaned and put the Tree and Notebook in it
-my $hpaned = Gtk2::HPaned->new; 
+# Create an Panned horizontal and put the Tree and Notebook in it
+my $hpaned = Gtk3::Paned->new('horizontal');
 $top_vbox->pack_end( $hpaned, TRUE, TRUE, 2 );
-$hpaned->pack1( $sw_tree, TRUE, TRUE );
-$hpaned->pack2( $file_dir_notebook, FALSE, TRUE );
+$hpaned->pack1( $sw_tree, FALSE, FALSE );
+$hpaned->pack2( $file_dir_notebook, TRUE, FALSE );
 $hpaned->set_position( $settings{'hpaned_width'} );
-$hpaned->child1_resize( 0 );
+
+# Set minimal sizes
+$sw_tree->set_size_request(180, 180);
+$tv_tree->set_size_request(180, 180);
 
 ######################################################################
 # Create manipulation items                                          #
 ######################################################################
 
 # Create a vbox for menubar and pane
-my $bottom_vbox = new Gtk2::VBox( FALSE, 2);
+my $bottom_vbox = new Gtk3::Box( 'vertical', 2); $bottom_vbox->set_homogeneous(FALSE);
 $main_paned->pack2( $bottom_vbox, FALSE, TRUE );
 
-my $status_bar = new Gtk2::Label( '' );
+my $status_bar = new Gtk3::Label( '' );
 $status_bar->set_justify( 'left' );
 $bottom_vbox->pack_start( $status_bar, TRUE, TRUE, 0 );
 
-my $table = new Gtk2::Table( 1, 2, FALSE );
+my $table = new Gtk3::Table( 1, 2, FALSE );
 $bottom_vbox->pack_end( $table, FALSE, FALSE, 2);
 
-my $notebook = new Gtk2::Notebook();
+my $notebook = Gtk3::Notebook->new();
 $notebook->set_current_page (0);
 $table->attach_defaults( $notebook, 0, 1, 0, 1 );
 $notebook->signal_connect_after( 'switch-page', sub { if ( $settings{'auto_preview'} ) { &preview; } } );
@@ -343,18 +359,20 @@ $notebook->signal_connect_after( 'switch-page', sub { if ( $settings{'auto_previ
 # Case change                                                        #
 ######################################################################
 
-my $case_hbox1 = new Gtk2::HBox( FALSE, 4 );
-my $case_hbox2 = new Gtk2::HBox( FALSE, 4 );
-my $case_vbox1 = new Gtk2::VBox( FALSE, 4 );
-my $case_vbox2 = new Gtk2::VBox( FALSE, 4 );
-$notebook->append_page( $case_hbox1, decode('utf8',gettext('Case Change')) );
+my $case_hbox1 = new Gtk3::Box( 'horizontal', 4 ); $case_hbox1->set_homogeneous(FALSE);
+my $case_hbox2 = new Gtk3::Box( 'horizontal', 4 ); $case_hbox2->set_homogeneous(FALSE);
+my $case_vbox1 = new Gtk3::Box( 'vertical', 4 ); $case_vbox1->set_homogeneous(FALSE);
+my $case_vbox2 = new Gtk3::Box( 'vertical', 4 ); $case_vbox2->set_homogeneous(FALSE);
+$notebook->append_page( $case_hbox1, Gtk3::Label->new_with_mnemonic(decode('utf8',gettext('Case Change'))) );
 
-my $case_all_up_radio     = new Gtk2::RadioButton( undef, decode('utf8',gettext('ALL UPPERCASE')) );
-my $case_all_lo_radio     = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('all lowercase')) );
-my $case_only_first_radio = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('Only the first letter')) );
-my $case_first_radio      = new Gtk2::RadioButton( $case_all_up_radio, decode('utf8',gettext('Only The First Letter And After')) );
+my $case_all_up_radio     = Gtk3::RadioButton->new_with_label_from_widget( undef, decode('utf8',gettext('ALL UPPERCASE')) );
+my $case_all_lo_radio     = Gtk3::RadioButton->new_with_label_from_widget( $case_all_up_radio, decode('utf8',gettext('all lowercase')) );
+my $case_camel_radio      = Gtk3::RadioButton->new_with_label_from_widget( $case_all_up_radio, decode('utf8',gettext('CamelCase')) );
+my $case_only_first_radio = Gtk3::RadioButton->new_with_label_from_widget( $case_all_up_radio, decode('utf8',gettext('Only the first letter')) );
+my $case_first_radio      = Gtk3::RadioButton->new_with_label_from_widget( $case_all_up_radio, decode('utf8',gettext('Only The First Letter And After')) );
 
-my $case_first_after_entry = Gtk2::Entry->new_with_max_length(254);
+my $case_first_after_entry = Gtk3::Entry->new();
+$case_first_after_entry->set_max_length(254);
 $case_first_after_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $case_first_after_entry->get_position+1;} );
 $case_first_after_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $case_first_after_entry->get_position+1;} );
 $case_first_after_entry->set_text(' _-\([');
@@ -362,6 +380,7 @@ $case_first_after_entry->set_width_chars( 8 );
 
 $case_all_up_radio    ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 $case_all_lo_radio    ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
+$case_camel_radio     ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 $case_only_first_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 $case_first_radio     ->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 
@@ -369,6 +388,7 @@ $case_hbox1->pack_start( $case_vbox1,             FALSE, TRUE, 4 );
 $case_hbox1->pack_start( $case_vbox2,             FALSE, TRUE, 4 );
 $case_vbox1->pack_start( $case_all_up_radio,      FALSE, TRUE, 4 );
 $case_vbox1->pack_start( $case_all_lo_radio,      FALSE, TRUE, 4 );
+$case_vbox2->pack_start( $case_camel_radio,       FALSE, TRUE, 4 );
 $case_vbox2->pack_start( $case_only_first_radio,  FALSE, TRUE, 4 );
 $case_hbox2->pack_start( $case_first_radio,       FALSE, TRUE, 0 );
 $case_hbox2->pack_start( $case_first_after_entry, FALSE, TRUE, 0 );
@@ -379,34 +399,40 @@ $case_vbox2->pack_start( $case_hbox2,             FALSE, TRUE, 4 );
 # Insert / Delete                                                    #
 ######################################################################
 
-my $insdel_vbox  = new Gtk2::VBox( FALSE, 4 );
-my $insdel_hbox1 = new Gtk2::HBox( FALSE, 4 );
-my $insdel_hbox2 = new Gtk2::HBox( FALSE, 4 );
-$notebook->append_page( $insdel_vbox, decode('utf8',gettext('Insert / Delete')) );
+my $insdel_vbox  = new Gtk3::Box( 'vertical', 4 ); $insdel_vbox->set_homogeneous(FALSE);
+my $insdel_hbox1 = new Gtk3::Box( 'horizontal', 4 ); $insdel_hbox1->set_homogeneous(FALSE);
+my $insdel_hbox2 = new Gtk3::Box( 'horizontal', 4 ); $insdel_hbox2->set_homogeneous(FALSE);
+$notebook->append_page( $insdel_vbox, Gtk3::Label->new(decode('utf8',gettext('Insert / Delete'))) );
 
 # in hbox1
-my $insert_radio = new Gtk2::RadioButton( undef, decode('utf8',gettext('Insert')) );
+my $insert_radio = Gtk3::RadioButton->new_with_label_from_widget( undef, decode('utf8',gettext('Insert')) );
 $insert_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $insert_entry = Gtk2::Entry->new_with_max_length(254);
+my $insert_entry = Gtk3::Entry->new();
+$insert_entry->set_max_length(254);
 $insert_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $insert_entry->get_position+1;} );
 $insert_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $insert_entry->get_position+1;} );
-my $insert_at_label = new Gtk2::Label( decode('utf8',gettext('at position')) );
-my $insert_adj = new Gtk2::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
+my $insert_at_label = new Gtk3::Label( decode('utf8',gettext('at position')) );
+my $insert_adj = new Gtk3::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
 $insert_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $insert_spin = new Gtk2::SpinButton( $insert_adj, 0, 0 );
+my $insert_spin = new Gtk3::SpinButton( $insert_adj, 0, 0 );
 $insert_spin->set_numeric(TRUE);
 
+# Select the radio button if focus on a field
+$insert_entry->signal_connect_after( 'focus-in-event', sub { $insert_radio->set_active(TRUE); } );
+$insert_spin->signal_connect_after( 'focus-in-event', sub { $insert_radio->set_active(TRUE); } );
+
+
 # in hbox2
-my $delete_radio = new Gtk2::RadioButton( $insert_radio, decode('utf8',gettext('Delete between')) );
+my $delete_radio = Gtk3::RadioButton->new_with_label_from_widget( $insert_radio, decode('utf8',gettext('Delete between')) );
 $delete_radio->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $delete_btw1_adj = new Gtk2::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
+my $delete_btw1_adj = new Gtk3::Adjustment( 0, -256.0, 256.0, 1.0, 5.0, 0.0 );
 $delete_btw1_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $delete_btw1_spin = new Gtk2::SpinButton( $delete_btw1_adj, 0, 0 );
+my $delete_btw1_spin = new Gtk3::SpinButton( $delete_btw1_adj, 0, 0 );
 $delete_btw1_spin->set_numeric(TRUE);
-my $delete_btw2_label = new Gtk2::Label( decode('utf8',gettext('and')) );
-my $delete_btw2_adj = new Gtk2::Adjustment( 1, -256.0, 256.0, 1.0, 5.0, 0.0 );
+my $delete_btw2_label = new Gtk3::Label( decode('utf8',gettext('and')) );
+my $delete_btw2_adj = new Gtk3::Adjustment( 1, -256.0, 256.0, 1.0, 5.0, 0.0 );
 $delete_btw2_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $delete_btw2_spin = new Gtk2::SpinButton( $delete_btw2_adj, 0, 0 );
+my $delete_btw2_spin = new Gtk3::SpinButton( $delete_btw2_adj, 0, 0 );
 $delete_btw2_spin->set_numeric(TRUE);
 
 $insdel_vbox ->pack_start( $insdel_hbox1,      FALSE, FALSE, 4 );
@@ -420,26 +446,36 @@ $insdel_hbox2->pack_start( $delete_btw1_spin,  FALSE, FALSE, 4 );
 $insdel_hbox2->pack_start( $delete_btw2_label, FALSE, FALSE, 4 );
 $insdel_hbox2->pack_start( $delete_btw2_spin,  FALSE, FALSE, 4 );
 
+# Select the radio button if focus on a field
+$delete_btw1_spin->signal_connect_after( 'focus-in-event', sub { $delete_radio->set_active(TRUE); } );
+$delete_btw2_spin->signal_connect_after( 'focus-in-event', sub { $delete_radio->set_active(TRUE); } );
+
 
 ######################################################################
 # Replace / Remove                                                   #
 ######################################################################
 
-my $reprem_vbox  = new Gtk2::VBox( FALSE, 4 );
-my $reprem_hbox  = new Gtk2::HBox( FALSE, 4 );
-$notebook->append_page( $reprem_vbox, decode('utf8',gettext('Replace / Remove')) );
+my $reprem_vbox  = new Gtk3::Box( 'vertical', 4 ); $reprem_vbox->set_homogeneous(FALSE);
+my $reprem_hbox  = new Gtk3::Box( 'horizontal', 4 ); $reprem_hbox->set_homogeneous(FALSE);
+$notebook->append_page( $reprem_vbox, Gtk3::Label->new(decode('utf8',gettext('Replace / Remove'))) );
 
-my $replace_this_label = new Gtk2::Label( decode('utf8',gettext('Replace')) );
-my $replace_this_entry = Gtk2::Entry->new_with_max_length(99);
+my $replace_this_label = new Gtk3::Label( decode('utf8',gettext('Replace')) );
+my $replace_this_entry = Gtk3::Entry->new();
+$replace_this_entry->set_max_length(99);
+$replace_this_entry->set_width_chars(30);
+$replace_this_entry->set_max_width_chars(80);
 $replace_this_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_this_entry->get_position+1;} );
 $replace_this_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_this_entry->get_position+1;} );
-my $replace_with_label = new Gtk2::Label( decode('utf8',gettext('with')) );
-my $replace_with_entry = Gtk2::Entry->new_with_max_length(99);
+my $replace_with_label = new Gtk3::Label( decode('utf8',gettext('with')) );
+my $replace_with_entry = Gtk3::Entry->new();
+$replace_with_entry->set_max_length(99);
+$replace_with_entry->set_width_chars(30);
+$replace_with_entry->set_max_width_chars(80);
 $replace_with_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_with_entry->get_position+1;} );
 $replace_with_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $replace_with_entry->get_position+1;} );
-my $replace_opt_case  = new Gtk2::CheckButton( decode('utf8',gettext('Case sensitive')) );
+my $replace_opt_case  = Gtk3::CheckButton->new_with_label( decode('utf8',gettext('Case sensitive')) );
 $replace_opt_case->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $replace_opt_regex = new Gtk2::CheckButton( decode('utf8',gettext('Regular expression')) );
+my $replace_opt_regex = Gtk3::CheckButton->new_with_label( decode('utf8',gettext('Regular expression')) );
 $replace_opt_regex->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
 
 $reprem_vbox->pack_start( $reprem_hbox,        FALSE, FALSE, 4 );
@@ -455,41 +491,43 @@ $reprem_vbox->pack_start( $replace_opt_regex,  FALSE, FALSE, 4 );
 # Numerical                                                          #
 ######################################################################
 
-my $numeric_vbox  = new Gtk2::VBox( FALSE, 4 );
-my $numeric_hbox1 = new Gtk2::HBox( FALSE, 4 );
-my $numeric_hbox2 = new Gtk2::HBox( FALSE, 4 );
-my $numeric_hbox3 = new Gtk2::HBox( FALSE, 4 );
-$notebook->append_page( $numeric_vbox, decode('utf8',gettext('Numerical')) );
+my $numeric_vbox  = new Gtk3::Box( 'vertical', 4 ); $numeric_vbox->set_homogeneous(FALSE);
+my $numeric_hbox1 = new Gtk3::Box( 'horizontal', 4 ); $numeric_hbox1->set_homogeneous(FALSE);
+my $numeric_hbox2 = new Gtk3::Box( 'horizontal', 4 ); $numeric_hbox2->set_homogeneous(FALSE);
+my $numeric_hbox3 = new Gtk3::Box( 'horizontal', 4 ); $numeric_hbox3->set_homogeneous(FALSE);
+$notebook->append_page( $numeric_vbox, Gtk3::Label->new(decode('utf8',gettext('Numerical'))) );
 
 # in hbox1
-my $numeric_start_label = new Gtk2::Label( decode('utf8',gettext('Add numbers starting at')) );
-my $numeric_start_adj   = new Gtk2::Adjustment( 1, 0.0, 999999.0, 1.0, 5.0, 0.0 );
+my $numeric_start_label = new Gtk3::Label( decode('utf8',gettext('Add numbers starting at')) );
+my $numeric_start_adj   = new Gtk3::Adjustment( 1, 0.0, 999999.0, 1.0, 5.0, 0.0 );
 $numeric_start_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $numeric_start_spin  = new Gtk2::SpinButton( $numeric_start_adj, 0, 0 );
+my $numeric_start_spin  = new Gtk3::SpinButton( $numeric_start_adj, 0, 0 );
 $numeric_start_spin->set_numeric(TRUE);
-my $numeric_increment_label = new Gtk2::Label( decode('utf8',gettext('and increment by')) );
-my $numeric_increment_adj   = new Gtk2::Adjustment( 1, 1.0, 9999.0, 1.0, 1.0, 0.0 );
+my $numeric_increment_label = new Gtk3::Label( decode('utf8',gettext('and increment by')) );
+my $numeric_increment_adj   = new Gtk3::Adjustment( 1, 1.0, 9999.0, 1.0, 1.0, 0.0 );
 $numeric_increment_adj->signal_connect( 'value_changed', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
-my $numeric_increment_spin = new Gtk2::SpinButton( $numeric_increment_adj, 0, 0 );
+my $numeric_increment_spin = new Gtk3::SpinButton( $numeric_increment_adj, 0, 0 );
 $numeric_increment_spin->set_numeric(TRUE);
 
 # in hbox2 
-my $numeric_prefix_label = new Gtk2::Label( decode('utf8',gettext('Insert before the numbers')) );
-my $numeric_prefix_entry = Gtk2::Entry->new_with_max_length(254);
+my $numeric_prefix_label = new Gtk3::Label( decode('utf8',gettext('Insert before the numbers')) );
+my $numeric_prefix_entry = Gtk3::Entry->new();
+$numeric_prefix_entry->set_max_length(254);
 $numeric_prefix_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_prefix_entry->get_position+1;} );
 $numeric_prefix_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_prefix_entry->get_position+1;} );
 $numeric_prefix_entry->set_width_chars (9);
-my $numeric_suffix_label = new Gtk2::Label( decode('utf8',gettext('and after')) );
-my $numeric_suffix_entry = Gtk2::Entry->new_with_max_length(254);
+my $numeric_suffix_label = new Gtk3::Label( decode('utf8',gettext('and after')) );
+my $numeric_suffix_entry = Gtk3::Entry->new();
+$numeric_suffix_entry->set_max_length(254);
 $numeric_suffix_entry->signal_connect_after( 'insert-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_suffix_entry->get_position+1;} );
 $numeric_suffix_entry->signal_connect_after( 'delete-text', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } return '', $numeric_suffix_entry->get_position+1;} );
 $numeric_suffix_entry->set_width_chars (9);
 
 # in hbox3
-my $numeric_keep_filenames1 = new Gtk2::Label( decode('utf8',gettext('Keep existing names')) );
-my $numeric_keep_filenames2 = new Gtk2::RadioButton( undef, decode('utf8',gettext('Before the numbers')) );
-my $numeric_keep_filenames3 = new Gtk2::RadioButton( $numeric_keep_filenames2, decode('utf8',gettext('After the numbers')) );
-my $numeric_keep_filenames4 = new Gtk2::RadioButton( $numeric_keep_filenames2, decode('utf8',gettext('No')) );
+my $numeric_keep_filenames1 = new Gtk3::Label( decode('utf8',gettext('Keep existing names')) );
+my $numeric_keep_filenames2 = Gtk3::RadioButton->new_with_label_from_widget( undef, decode('utf8',gettext('Before the numbers')) );
+my $numeric_keep_filenames3 = Gtk3::RadioButton->new_with_label_from_widget( $numeric_keep_filenames2, decode('utf8',gettext('After the numbers')) );
+my $numeric_keep_filenames4 = Gtk3::RadioButton->new_with_label_from_widget( $numeric_keep_filenames2, decode('utf8',gettext('No')) );
 $numeric_keep_filenames4->set_active( TRUE );
 
 $numeric_keep_filenames2->signal_connect( 'clicked', sub { if ( $settings{'auto_preview'} == TRUE ) { &preview; } } );
@@ -517,35 +555,35 @@ $numeric_hbox3->pack_start( $numeric_keep_filenames4, FALSE, FALSE, 4 );
 # Buttons                                                            #
 ######################################################################
 
-my $button_box = new Gtk2::VButtonBox();
-$button_box->set_layout_default( 'spread' );
+my $button_box = new Gtk3::ButtonBox('vertical');
+$button_box->set_layout('spread');
 $table->attach_defaults( $button_box, 1, 2, 0, 1 );
 
-my $preview_button = new Gtk2::Button( decode('utf8',gettext('_Preview')) );
+my $preview_button = Gtk3::Button->new_with_mnemonic( decode('utf8',gettext('_Preview')) );
 $button_box->add($preview_button);
 $preview_button->set_sensitive( TRUE );
 if ( $settings{'auto_preview'} == TRUE ) { $preview_button->set_sensitive( FALSE ); }
 $preview_button->signal_connect( 'clicked', \&preview );
 
-my $apply_button = new Gtk2::Button( decode('utf8',gettext('_Rename')) );
+my $apply_button = Gtk3::Button->new_with_mnemonic( decode('utf8',gettext('_Rename')) );
 $button_box->add($apply_button);
 $apply_button->set_sensitive( TRUE );
 if ( $settings{'auto_preview'} == FALSE ) { $apply_button->set_sensitive( FALSE ); }
 $apply_button->signal_connect( 'clicked', \&rename_now );
 
-my $undo_button = new Gtk2::Button( decode('utf8',gettext('_Undo')) );
+my $undo_button = Gtk3::Button->new_with_mnemonic( decode('utf8',gettext('_Undo')) );
 $button_box->add($undo_button);
 $undo_button->set_sensitive( FALSE );
 $undo_button->signal_connect( 'clicked', \&undo );
 
-my $refresh_button = new Gtk2::Button( decode('utf8',gettext('Refre_sh')) );
+my $refresh_button = Gtk3::Button->new_with_mnemonic( decode('utf8',gettext('Refre_sh')) );
 $button_box->add($refresh_button);
 $refresh_button->set_sensitive( TRUE );
 $refresh_button->signal_connect( 'clicked', \&refresh );
 
 $window->show_all();
 &open_tree; # automatically open the tree at start for the user
-Gtk2->main;
+Gtk3->main;
 exit(0);
 
 
@@ -578,15 +616,15 @@ sub populate_tree{
    # Append all the new directories that just opened up from the tree
    foreach my $i (@path) {
 
-      # Append only if it's a directory, not a file, and it's not the directory '.' or '..' and that we have permissions to access the directory
-      if ( -d decode('utf8',"$path$i") and $i ne '.' and $i ne '..' and -x decode('utf8',"$path$i") ) {
+      # Append only if it's a directory, not a file, and it's not the directory '.' or '..'
+      if ( -d decode('utf8',"$path$i") and $i ne '.' and $i ne '..' ) {
 
          # Append only hidden files and directories if the option Show hidden files is checked
          if ( substr($i,0,1) ne '.' or ( substr($i,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
 
             # fill @path_child with a listing of all files/directories of $i
             my @path_child = '';
-            opendir( DIRHANDLE, decode('utf8',"$path$i") );
+            opendir( DIRHANDLE, decode('utf8',"$path$i") ) || next;
             @path_child = readdir(DIRHANDLE);
             closedir(DIRHANDLE);
             @path_child = sort(@path_child);
@@ -622,7 +660,6 @@ sub populate_listing {
    my @path;      # will store a listing of all files/directories of $path
    $status_bar_files=0;
    $status_bar_dirs=0;
-
    # set $path to be the full path name from the iter selected
    my $iter_tmp = $iter;
    while( $iter_tmp ) {
@@ -651,16 +688,18 @@ sub populate_listing {
          if ( substr($t,0,1) ne '.' or ( substr($t,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
             my $iter_new = $ls_files->append;
             $status_bar_files+=1;
-            if ( $showpath == 0 ) { $ls_files->set_value( $iter_new, 0, decode('utf8',$t) ); }
-            else { $ls_files->set_value( $iter_new, 0, decode('utf8',"$path$t") ); }
+            my $t2 = $t;
+            if ( $showpath != 0 ) { $t2 = "$path$t"; }
+            $ls_files->set_value( $iter_new, 0, Glib::Object::Introspection::GValueWrapper->new('Glib::String', decode('utf8', $t2)) );
          }
       }
       elsif ( -d $path . decode('utf8',$t) and index(lc($t), lc($filter)) != -1 and $t ne '.' and $t ne '..' ) {
          if ( substr($t,0,1) ne '.' or ( substr($t,0,1) eq '.' and $settings{'show_hidden_files'} == 1 ) ) {
             my $iter_new = $ls_dirs->append;
             $status_bar_dirs+=1;
-            if ( $showpath == 0 ) { $ls_dirs->set_value( $iter_new, 0, decode('utf8',$t) ); }
-            else { $ls_dirs->set_value( $iter_new, 0, decode('utf8',"$path$t") ); }
+            my $t2 = $t;
+            if ( $showpath != 0 ) { $t2 = "$path$t"; }
+            $ls_dirs->set_value( $iter_new, 0, Glib::Object::Introspection::GValueWrapper->new('Glib::String', decode('utf8', $t2)) );
          }
       }
    }
@@ -699,8 +738,8 @@ sub refresh_status_bar {
 
 sub preview {
    # change the cursor
-   my $cursor = Gtk2::Gdk::Cursor->new('watch');
-   $window->window->set_cursor($cursor);
+   my $cursor = Gtk3::Gdk::Cursor->new('watch');
+   $window->get_window()->set_cursor($cursor);
 
    # We need an Idle callback else the cursor will not display
    Glib::Idle->add( sub {
@@ -744,16 +783,16 @@ sub preview {
 
    &refresh_status_bar;
 
-   $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-   $window->window->set_cursor($cursor);
+   $cursor = Gtk3::Gdk::Cursor->new('left-ptr');
+   $window->get_window()->set_cursor($cursor);
    return FALSE;
    }); # close Glib::Idle
 }
 
 sub rename_now {
    # change the cursor
-   my $cursor = Gtk2::Gdk::Cursor->new('watch');
-   $window->window->set_cursor($cursor);
+   my $cursor = Gtk3::Gdk::Cursor->new('watch');
+   $window->get_window()->set_cursor($cursor);
 
    # We need an Idle callback else the cursor will not display
    Glib::Idle->add( sub {
@@ -801,7 +840,7 @@ sub rename_now {
 
       # Check if a file or a directory already exist with the name we need
       if ( $security == 1 and $exist == 0 and -e $path . $name_new ) {
-         my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because it already exist.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
+         my $dialog = Gtk3::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because it already exist.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
          $dialog->run;
          $dialog->destroy;
          $exist=1;
@@ -809,7 +848,7 @@ sub rename_now {
 
       # Check if a file or a directory is more than 253 characters long, else after appending _gp the filename will be too long
       if ( (length($name_old) >= 253) || (length($name_new) >= 253) ) {
-        my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because the filename is too long.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
+        my $dialog = Gtk3::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('Cannot rename because the filename is too long.')) . "\n\n" . decode('utf8',gettext('Name')) . " : $path$name_old" . "\n\n" . decode('utf8',gettext('New name')) .  ": $path$name_new");
         $dialog->run;
         $dialog->destroy;
         $exist=1;
@@ -889,8 +928,8 @@ sub rename_now {
 
    if ( $settings{'auto_preview'} == FALSE ) { $apply_button->set_sensitive( FALSE ); }
 
-   $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-   $window->window->set_cursor($cursor);
+   $cursor = Gtk3::Gdk::Cursor->new('left-ptr');
+   $window->get_window()->set_cursor($cursor);
    return FALSE;
    }); # close Glib::Idle
 
@@ -916,6 +955,27 @@ sub case {
 
       # to lowercase
       elsif ( $case_all_lo_radio->get_active ) { $new_name = "\L$new_name"; }
+
+      # to CamelCase
+      # loop through each character, converting each character after a space
+      # (' ') to uppercase, and removing all spaces after exiting the loop
+      elsif ( $case_camel_radio->get_active) {
+        $new_name = "\L$new_name";
+        my @temp1 = split( //, $new_name ); # to loop
+        my @temp2 = split( //, $new_name ); # to modify
+        foreach my $x (' ') {
+          my $y=0;
+          foreach my $z (@temp1) {
+            if ( $x eq $z and defined $temp1[$y+1] ) { 
+              $temp2[$y+1] = "\U$temp2[$y+1]"; 
+            }
+            $y++;
+          }
+        }
+        $temp2[0] = "\U$temp2[0]";
+        $new_name = join( "", @temp2 );
+        $new_name =~ s/\s+//g;
+      }
 
       # Only the first letter
       # loop through each character, when it finds the first character that can
@@ -977,6 +1037,9 @@ sub insdel {
       # Insert
       if ( $insert_radio->get_active and $insert_entry->get_text ne '' ) {
          my $insert_at = $insert_spin->get_value_as_int();
+         # TODO: There is an off by one insert here.
+         # If $insert_at == -1, we should insert the text at the end. Not 1 from the end.
+         # This is because there is no such thing as "-0".
          if ( $insert_at > length($new_name) or $insert_at < (length($new_name)-(length($new_name)*2)) ) { $insert_at = length($new_name); }
          my $tmp_string1 = substr( $new_name, 0, $insert_at );
          my $tmp_string2 = substr( $new_name, $insert_at, length($new_name) );
@@ -987,6 +1050,7 @@ sub insdel {
       elsif ( $delete_radio->get_active ) {
          my $delete_to = $delete_btw2_spin->get_value_as_int();
          my $delete_from = $delete_btw1_spin->get_value_as_int();
+         # TODO: Same off by one issue as in Insert.
          if ( $delete_to > length($new_name) or $delete_to < (length($new_name)-(length($new_name)*2)) ) { $delete_to = length($new_name); }
          my $tmp_string1 = substr( $new_name, 0, $delete_from );
          my $tmp_string2 = substr( $new_name, $delete_to, length($new_name) );
@@ -1020,8 +1084,8 @@ sub replace {
 
       # Substitution with pattern metacharacters
       if ( $replace_opt_regex->get_active ) {
-         if ( $replace_opt_case->get_mode ) { $new_name =~ s/$replace_this/$replace_with/g;  }
-         else                               { $new_name =~ s/$replace_this/$replace_with/ig; }
+         if ( $replace_opt_case->get_active ) { $new_name = repl($replace_this, $replace_with, $new_name, FALSE); }
+         else                               { $new_name = repl($replace_this, $replace_with, $new_name, TRUE); }
       }
 
       # Substitution without pattern metacharacters (hence the \Q)
@@ -1128,7 +1192,9 @@ sub refresh {
       $path = $path .  '/' . $x;
 
       if ( -e $path ) {
-         while ( $x ne $tv_tree->get_model->get($iter) and $iter ) { $iter = $tv_tree->get_model->iter_next($iter); }
+         while ( $x ne $tv_tree->get_model->get($iter) and $iter ) {
+            $tv_tree->get_model->iter_next($iter);
+         }
 
          if ( $iter )  {
             $tv_tree->get_selection->select_iter( $iter );
@@ -1148,7 +1214,7 @@ sub refresh {
 
 sub check_log_size {
    if ( -s $log_file > 1000000 ) {
-      my $dialog = Gtk2::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('The log file is over 1M, you should clear it from the Options menu.')) );
+      my $dialog = Gtk3::MessageDialog->new ($window, 'modal', 'info', 'ok', decode('utf8',gettext('The log file is over 1M, you should clear it from the Options menu.')) );
       $dialog->run;
       $dialog->destroy;
    }
@@ -1233,20 +1299,23 @@ sub options_security {
 }
 
 sub options_filter {
-   my $dialog = Gtk2::Dialog->new ( decode('utf8',gettext('Filter')), $window, 'destroy-with-parent', 'gtk-ok' => 'reject');
-   $dialog->set_default_response ('reject');
-   $dialog->set_has_separator (TRUE);
-   my $label = new Gtk2::Label( decode('utf8',gettext('Only show files or directories that contains')) );
+   my $dialog = Gtk3::Dialog->new ( '', $window, 'destroy-with-parent', 'gtk-ok' => 'reject');
+#   my $dialog = Gtk3::Dialog->new ( decode('utf8',gettext('Filter'), $window, 'destroy-with-parent', 'gtk-ok' => 'reject');
+#my $filter_mi = new Gtk3::MenuItem( decode('utf8',gettext('Filter')) . '...' );
 
-   my $filter_entry = Gtk2::Entry->new_with_max_length(254);
+   $dialog->set_default_response ('reject');
+   my $label = new Gtk3::Label( decode('utf8',gettext('Only show files or directories that contains')) );
+
+   my $filter_entry = Gtk3::Entry->new();
+   $filter_entry->set_max_length(254);
    $filter_entry->set_activates_default( TRUE );
    $filter_entry->signal_connect_after( 'insert-text', sub { $filter = encode('utf8',$filter_entry->get_text); &populate_listing; return '', $filter_entry->get_position+1;} );
    $filter_entry->signal_connect_after( 'delete-text', sub { $filter = encode('utf8',$filter_entry->get_text); &populate_listing; return '', $filter_entry->get_position+1;} );
 
    $filter_entry->set_text( decode('utf8',$filter) );
 
-   $dialog->vbox->pack_start($label, TRUE, TRUE, TRUE);
-   $dialog->vbox->pack_start($filter_entry, TRUE, TRUE, TRUE);
+   $dialog->get_content_area()->pack_start($label, TRUE, TRUE, TRUE);
+   $dialog->get_content_area()->pack_start($filter_entry, TRUE, TRUE, TRUE);
 
    $label->show;
    $filter_entry->show;
@@ -1256,16 +1325,15 @@ sub options_filter {
 }
 
 sub options_view_log {
-   my $dialog = Gtk2::Dialog->new ('', $window, 'destroy-with-parent', decode('utf8',gettext('Clear')) => 'accept', 'gtk-ok' => 'reject');
+   my $dialog = Gtk3::Dialog->new ('', $window, 'destroy-with-parent', decode('utf8',gettext('Clear')) => 'accept', 'gtk-ok' => 'reject');
    $dialog->set_default_response ('reject');
-   $dialog->set_has_separator (TRUE);
    $dialog->set_default_size ($settings{'width'}, $settings{'height'});
 
-   my $log_sw = new Gtk2::ScrolledWindow( undef, undef );
+   my $log_sw = new Gtk3::ScrolledWindow( undef, undef );
    $log_sw->set_policy( 'automatic', 'automatic' );
    $log_sw->set_shadow_type ('in');
 
-   my $textview = Gtk2::TextView->new();
+   my $textview = Gtk3::TextView->new();
    $textview->set_editable( FALSE );
    $textview->set_cursor_visible( FALSE ) ;
    $textview->set_wrap_mode ( 'none' ) ;
@@ -1278,8 +1346,8 @@ sub options_view_log {
    my $tag = $textview->get_buffer()->create_tag ('', 'font', 'courier new');
    $textview->get_buffer()->apply_tag ($tag, $textview->get_buffer()->get_start_iter, $textview->get_buffer()->get_end_iter);
 
-   $log_sw->add_with_viewport( $textview );
-   $dialog->vbox->pack_start($log_sw, TRUE, TRUE, TRUE);
+   $log_sw->add( $textview );
+   $dialog->get_content_area()->pack_start($log_sw, TRUE, TRUE, TRUE);
 
    $textview->show();
    $log_sw->show();
@@ -1382,17 +1450,18 @@ sub save_settings {
 }
 
 sub help_contents {
-   my $dialog = Gtk2::Dialog->new ( decode('utf8',gettext('Tips')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept');
-   $dialog->set_has_separator (TRUE);
+   my $dialog = Gtk3::Dialog->new ( decode('utf8',gettext('Tips')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept');
    $dialog->set_default_response ('accept');
-   $dialog->set_default_size (470, 330);
+   $dialog->set_default_size (530, 440);
 
-   my $tips_sw = new Gtk2::ScrolledWindow( undef, undef );
+   my $tips_sw = new Gtk3::ScrolledWindow( undef, undef );
    $tips_sw->set_policy( 'automatic', 'automatic' );
    $tips_sw->set_shadow_type ('in');
 
-   my $buffer = Gtk2::TextBuffer->new();
-   $buffer->create_tag ("bold", weight => PANGO_WEIGHT_BOLD);
+   my $buffer = Gtk3::TextBuffer->new();
+   # my $bold = Pango::parse_weight("bold", 0);
+   my $bold = 700;  # Pango::Weight::bold
+   $buffer->create_tag ("bold", weight => $bold);
    $buffer->create_tag ("indent", 'left-margin' => 20);
    my $iter = $buffer->get_start_iter;
    my $tmp_menu_options = decode('utf8',gettext('_Options'));
@@ -1405,15 +1474,15 @@ sub help_contents {
    $buffer->insert_with_tags_by_name( $iter, "\n\n"   . decode('utf8',gettext('Insert / Delete')), "bold" );
    $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('To specify the end, use a negative number or a high number.')), "indent" );
    $buffer->insert_with_tags_by_name( $iter, "\n\n"   . decode('utf8',gettext('Replace / Remove')), "bold" );
-   $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('Backreferences with Regular expression cannot be use as $1 is considered a Perl variable.')), "indent" );
+   $buffer->insert_with_tags_by_name( $iter, "\n- "   . decode('utf8',gettext('Backreferences with Regular expression are :1, :2, ...')), "indent" );
 
-   my $textview = Gtk2::TextView->new_with_buffer( $buffer );
+   my $textview = Gtk3::TextView->new_with_buffer( $buffer );
    $textview->set_editable( FALSE );
    $textview->set_cursor_visible( FALSE ) ;
    $textview->set_wrap_mode ( 'word' ) ;
 
-   $dialog->vbox->pack_start( $tips_sw, TRUE, TRUE, TRUE );
-   $tips_sw->add_with_viewport( $textview );
+   $dialog->get_content_area()->pack_start( $tips_sw, TRUE, TRUE, TRUE );
+   $tips_sw->add( $textview );
 
    $textview->show();
    $tips_sw->show();
@@ -1426,22 +1495,22 @@ sub help_contents {
 }
 
 sub help_about {
-   my $dialog = Gtk2::Dialog->new( decode('utf8',gettext('About')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept' );
+   my $dialog = Gtk3::Dialog->new( decode('utf8',gettext('About')), $window, 'destroy-with-parent', 'gtk-ok' => 'accept' );
    $dialog->set_default_response( 'accept' );
-   $dialog->set_has_separator( TRUE );
-   $dialog->set_default_size( 450, 260 );
+   $dialog->set_default_size( 480, 280 );
 
-   my $about_sw = new Gtk2::ScrolledWindow( undef, undef );
+   my $about_sw = new Gtk3::ScrolledWindow( undef, undef );
    $about_sw->set_policy( 'automatic', 'automatic' );
    $about_sw->set_shadow_type ('in');
 
-   my $buffer = Gtk2::TextBuffer->new();
-   $buffer->create_tag( 'bold', weight => PANGO_WEIGHT_BOLD );
-   $buffer->create_tag( 'big', size => 15 * PANGO_SCALE );
+   my $buffer = Gtk3::TextBuffer->new();
+   my $bold = 700;  # Pango::Weight::bold
+   $buffer->create_tag( 'bold', weight => $bold );
+   $buffer->create_tag( 'big', size => 20 * 1024 );
    $buffer->create_tag( 'italic', style => 'italic' );
    my $iter = $buffer->get_start_iter;
-   my $icon = '@INSTALLDIR@/share/pixmaps/gprename/gprename.png';
-   my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $icon );
+   my $icon = '/usr/share/icons/gprename.png';
+   my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file( $icon );
 
    $buffer->insert_pixbuf ($iter,  $pixbuf);
    $buffer->insert_with_tags_by_name( $iter, "\n GPRename " . $str_gprename_version, 'bold', 'big' );
@@ -1450,17 +1519,15 @@ sub help_about {
    $buffer->insert_with_tags_by_name( $iter, " - gprename-users\@lists.sourceforge.net" );
    $buffer->insert_with_tags_by_name( $iter, "\nHome Page", 'bold' );
    $buffer->insert_with_tags_by_name( $iter, " - http://gprename.sourceforge.net" );
-   $buffer->insert_with_tags_by_name( $iter, "\nWikipedia", 'bold' );
-   $buffer->insert_with_tags_by_name( $iter, " - http://en.wikipedia.org/wiki/GPRename" );
 
-   my $textview = Gtk2::TextView->new_with_buffer($buffer);
+   my $textview = Gtk3::TextView->new_with_buffer($buffer);
    $textview->set_editable( FALSE );
    $textview->set_cursor_visible( FALSE ) ;
    $textview->set_wrap_mode ( 'word' ) ;
    $textview->set_justification ( 'center' ) ;
 
-   $dialog->vbox->pack_start($about_sw, TRUE, TRUE, TRUE);
-   $about_sw->add_with_viewport( $textview );
+   $dialog->get_content_area()->pack_start($about_sw, TRUE, TRUE, TRUE);
+   $about_sw->add( $textview );
 
    $textview->show();
    $about_sw->show();
@@ -1497,7 +1564,7 @@ sub open_tree {
    my $size = @paths; # need $size to get the last item of @paths
    $path = '';
    my $iter = $tv_tree->get_model->get_iter_first;
-   $tv_tree->get_selection->select_iter( $iter ); # select the first iter which is '/' in case the use has the remember last directory option check and wants to remember /
+   $tv_tree->get_selection->select_iter( $iter ); # select the first iter which is '/' in case the user has the remember last directory option check and wants to remember /
    $iter = $tv_tree->get_model->iter_nth_child ($iter, 0); # set $iter to point to the first directory in /
 
    # Open up the tree where the user wants to be
@@ -1510,7 +1577,7 @@ sub open_tree {
 	}
 
          while ( defined $iter and decode('utf8',$x) ne $tv_tree->get_model->get($iter) ) {
-            $iter = $tv_tree->get_model->iter_next($iter);
+            $tv_tree->get_model->iter_next($iter);
          }
          if ( $iter ) {
             $tv_tree->get_selection->select_iter( $iter );
@@ -1530,3 +1597,29 @@ sub open_tree {
    # List the files/directories
    &populate_listing;
 }
+
+# inspired by Kent Fredric's answer in: https://stackoverflow.com/questions/392643/how-to-use-a-variable-in-the-replacement-side-of-the-perl-substitution-operator
+sub repl { 
+    my $find = shift; 
+    my $replace = shift; 
+    my $var = shift;
+    my $caseInsensitive = shift;
+    my @items = ($caseInsensitive) ? ( $var =~ /$find/i ) : ( $var =~ $find ); 
+    if ($caseInsensitive) {
+        $var =~ s/$find/$replace/i; 
+    } else {
+        $var =~ s/$find/$replace/; 
+    }
+    my @tokens = split /(:[0-9])/, $var;
+    for( 0 .. $#tokens ) {
+        if ($tokens[$_] =~ m/:[0-9]/) {
+            my $num = $tokens[$_];
+            $num =~ s/^:(.)$/$1/;
+            if ($num > 0 && $num <= @items) {
+                @tokens[$_] = @items[($num - 1)];
+            }
+        }
+    }
+    return join('', @tokens); 
+}
+

@@ -8,7 +8,7 @@
 
 GPRename is a complete batch renamer for files and directories.
 
-Copyright (C) 2014 gprename-users@lists.sourceforge.net
+Copyright (C) 2001 gprename-users@lists.sourceforge.net
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,31 +39,16 @@ Requirements
 
 Installation
 ---------------------------------------------------------------------------
-GPRename is probably in your distribution's package manager, if it's not
-follow these direction to easily install it :
+This should work but will probably install an old version:
+  sudo apt install gprename
+  sudo yum install gprename
 
-Download: http://sourceforge.net/project/showfiles.php?group_id=40094
-
-After downloading GPRename, open up a terminal and type these commands:
-tar xvjf gprename-XXXXXXXX.tar.bz2
-cd gprename
-sudo make install
-
-For Ubuntu or Debian, run this command in a terminal before you install it:
-sudo apt-get install build-essential libintl-perl gettext nautilus-actions
-
-Optional: If you're running Gnome and you're using Nautilus and you want
-the contextual menu with the right-click button to show GPRename, then
-install nautilus-actions, go into System/Preferences/Nautilus Actions 
-Configuration, click Tools, Import Assistant..., Forward, select
-gprename-nautilus-actions.xml, Foward, Forward, Apply, Close, click the
-Record icon to save the changes and, finally, you might have to close
-Nautilus and open it up to be able to show the changes. If it doesn't you
-can always call 'nautilus -q' to force it to restart.
-
-GPRename will now be installed and can be opened by calling 'gprename'
-in a terminal or by selecting it in the Accessories menu in Gnome or with
-the contextual menus in Nautilus if you've installed nautilus-actions.
+Better to install it manually:
+  sudo apt install build-essential libintl-perl gettext nautilus-actions
+  wget https://sourceforge.net/projects/gprename/files/latest/download
+  tar xvjf gprename-????.tar.bz2
+  cd gprename
+  sudo make install
 
 To run GPRename in another language, you need to open the application
 like so : LANGUAGE=fr gprename
@@ -78,36 +63,15 @@ and follow the instructions above.
 ---------------------------------------------------------------------------
 
 
-Credits
----------------------------------------------------------------------------
- - Albino Riganello        Translation: Italian (2.3)
- - Algimantas Margevičius  Translation: Lithuanian (2.7)
- - Bart'omiej Gródek       Translation: Polish (1.24-2.6)
- - Dominik Fretz           Patch (<1.00)
- - Duane Toler             Bugs reports (<1.00)
- - Johan Spee              Logo, icon, bugs and features (2.1-2.2)
- - Jose Oswaldo            Translation: Brazilian Portuguese (2.1-2.5)
- - Marcin Juszkiewicz      Debian package (0.92)
- - Martintxo               Translation: Spanish (1.21-2.1)
- - Marvin Stark            Maintainer, Debian packager (2.2-2.5)
- - nestor di               Logo and icon (1.20-2.0)
- - Petter Sundlöf          Install script (0.92-1.3)
- - Rudinei Weschenfelder   Translation: Brazil (2.6.6)
- - Salman Farisy           Translation: Indonesian (2.4)
- - Tristesse               Author (0.90-1.24)
- - Wayne E. Nail           Bugs and features reports (2.0-2.5)
- - Zurd                    Maintainer (1.0-20140325)
----------------------------------------------------------------------------
-
-
 Translation
 ---------------------------------------------------------------------------
 Download GPRename, extract it and go into the locale directory.
-Copy the file gprename.po and modify it to any language and send it on the
-mailing list at gprename-users@lists.sourceforge.net
+Copy the file locale/gprename.po and modify it to any language and send it
+on the mailing list at gprename-users@lists.sourceforge.net or create a
+Bug Ticket.
 
 Note that some strings have a underscore ( _ ), use it as a mnemonics,
-which is a letter underlined and you can call it with ALT-letter in the
+which is a letter underlined and you can use it with ALT-letter in the
 application and, of course, don't underline 2 times the same letter.
 ---------------------------------------------------------------------------
 
@@ -133,21 +97,55 @@ Swap to "Song - Artist.mp3" by using " - " as a swap text
 
 Changelog
 ---------------------------------------------------------------------------
+GPRename 20230429
+Added		CamelCase - remove space and set Capital Letter
+
+GPRename 20220807
+Added		Auto select of radio buttons in Insert/Delete
+
+GPRename 20220626
+Fixed		Translation file gprename.po
+Modified	German translation (de.po)
+
+GPRename 20220226
+Fixed		Bug #25: Prevent directory tree from resetting to top
+Removed		Credits section in README.TXT file
+
+GPRename 20220206
+Removed		Nautilus action because the XML file is obsolete
+Modified	bin/gprename.desktop
+
+GPRename 20210405
+Modified        German translation
+
+GPRename 20210328
+Modified        Spanish translation
+
+GPRename 20201214
+Modified        Ported to GTK3-Perl - https://sourceforge.net/p/gprename/mailman/message/37175184/
+
+GPRename 20190221 - Zurd
+Added           Romanian translation
+
+GPRename 20160905 - Zurd
+Fixed           Problem where you couldn't enter into a mounted drive - https://sourceforge.net/p/gprename/bugs/7
+Fixed           Location of gprename.png file at line 1443
+
 GPRename 20140325 - Zurd
-Modified  icon file location in gprename.desktop
-Added     "Permission denied" and "Path doesn't exist" error message
+Modified        Icon file location in gprename.desktop
+Added           "Permission denied" and "Path doesn't exist" error message
 
 GPRename 5      2013-06-29 - Zurd
-Modified  Field 'Add numbers starting at' from a maximum of 9,999 to 999,999
+Modified        Field 'Add numbers starting at' from a maximum of 9,999 to 999,999
 
 GPRename 4      2013-05-03 - Zurd
-Modified  How GPRename rename long filename over 253 characters
+Modified        How GPRename rename long filename over 253 characters
 
 GPRename 3      2013-01-19 - Zurd
-Modified  Translation : French
+Modified        French translation
 
 GPRename 2.7    2012-05-15 - Zurd
-Added		Translation : Lithuanian
+Added		Lithuanian translation
 
 GPRename 2.6.6  2011-11-30 - Zurd
 Added           Translation : Brazil
@@ -247,12 +245,12 @@ GPRename 1.5	2006-02-24 - Zurd
 Added		Can now add text at the end with a checkbox
 Modified	Languages file, README, install script, website, tips
 
-GPRename 1.4 	2006-02-22 - Zurd
+GPRename 1.4	2006-02-22 - Zurd
 Added		uninstall.sh: to easily uninstall GPRename completely
 Modified	Languages files, they now all have a standard. Some string in it are labeled 'x', since I can't translate them.
 Modified	install.sh: Automatic install so the Gentoo's ebuild can be done more easily.
 
-GPRename 1.3  	2006-01-27 - Zurd
+GPRename 1.3	2006-01-27 - Zurd
 Added		Tooltip for the Insert radio button
 Added		Option to use the preview button or not
 Added		Option to automatically trim spaces at the beginning
@@ -261,35 +259,35 @@ Fixed		Bug with directories with spaces not selected after opening GPRename
 Modified	About dialog
 Modified	The insert radio button is now the default
 
-GPRename 1.24 	2004-06-23 - Tristesse
+GPRename 1.24	2004-06-23 - Tristesse
 Added		Translation: Polish
 
-GPRename 1.23 	2004-03-18 - Tristesse
+GPRename 1.23	2004-03-18 - Tristesse
 Fixed		Language title so that it is translated in all language
 Fixed		Bug where 2 directories were selected at the opening
 
-GPRename 1.22 	2004-03-16 - Zurd
+GPRename 1.22	2004-03-16 - Zurd
 Fixed		A bug, now the starting directory will be deselected when another directory is selected
 Modified	Disabled the undo button when it can't be used
 Modified	Set default focus on the 'Close' button in a Dialog
 
-GPRename 1.21 	2004-03-14 - Zurd
+GPRename 1.21	2004-03-14 - Zurd
 Added		Translation: Spanish
 Added		Select the start directory in the tree
 
-GPRename 1.20 	2004-03-13 - Tristesse
+GPRename 1.20	2004-03-13 - Tristesse
 Added		Window icon
 Added		Language selection menu
 Added		Translation: Chinese
 
-GPRename 1.11 	2004-03-07 - Zurd
+GPRename 1.11	2004-03-07 - Zurd
 Added		Some tooltips for a better understanding of some options
 Modified        Location of some widget, looks better now
 
-GPRename 1.10 	2004-03-03 - Zurd
+GPRename 1.10	2004-03-03 - Zurd
 Modified	All the widgets on the four tabs at the bottom, takes now less space and there is more space available for the tree and the file/directory list
 
-GPRename 1.00 	2004-02-25 - Zurd
+GPRename 1.00	2004-02-25 - Zurd
 Added		Renaming directory
 Added		Translation: French
 Added		Combo box "Do not keep existing filenames" in the numerical section
@@ -300,7 +298,7 @@ Fixed		A bug, now GPRename can open in 640x480 and a user can close the window
 Modified	Installation file, cleaned it and it is now asking for a language to use
 Modified	Opening directory, either the current directory or the first argument
 Removed		Size and Modified time shown in the list of files
-Removed 	Chinese translation, too much new labels and I don't know chinese
+Removed		Chinese translation, too much new labels and I don't know chinese
 
 GPRename 0.92	2002-05-22 - Tristesse
 Added		The script install.sh

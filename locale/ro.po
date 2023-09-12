@@ -1,0 +1,197 @@
+# French translation
+# Copyright (C) 2012 GPRename
+# This file is distributed under the same license as the GPRename package.
+# gprename-users@lists.sourceforge.net, 2012
+
+msgid ""
+msgstr ""
+"Project-Id-Version: GPRename 2.7\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "_File"
+msgstr "_Fișier"
+
+msgid "Quit"
+msgstr "Abandon"
+
+msgid "_Options"
+msgstr "_Opțiuni"
+
+msgid "Trim spaces"
+msgstr "Înlătură spațiile"
+
+msgid "Zero auto-fill"
+msgstr "Inserează automat un zero"
+
+msgid "Automatic preview"
+msgstr "Previzualizare automată"
+
+msgid "Remember last directory"
+msgstr "Memorează ultimul director"
+
+msgid "Show hidden files"
+msgstr "Arată fișierele ascunse"
+
+msgid "Show path"
+msgstr "Arată calea"
+
+msgid "Show contents of subdirectories"
+msgstr "Arată conținutul sub-directoarelor"
+
+msgid "Fullscreen"
+msgstr "Ecran complet"
+
+msgid "Disable security check"
+msgstr "Dezactivează verificarea de securitate"
+
+msgid "Filter"
+msgstr "Filtru"
+
+msgid "View log"
+msgstr "Vezi jurnal"
+
+msgid "_Help"
+msgstr "_Ajutor"
+
+msgid "Contents"
+msgstr "Conținut"
+
+msgid "About"
+msgstr "Despre"
+
+msgid "Name"
+msgstr "Nume"
+
+msgid "New name"
+msgstr "Nume nou"
+
+msgid "Files"
+msgstr "Fișiere"
+
+msgid "Directory"
+msgstr "Director"
+
+msgid "Directories"
+msgstr "Directoare"
+
+msgid "Selected"
+msgstr "Selectat"
+
+msgid "Case Change"
+msgstr "Schimbă Literele"
+
+msgid "ALL UPPERCASE"
+msgstr "LITERE MARI"
+
+msgid "all lowercase"
+msgstr "litere mici"
+
+msgid "Only the first letter"
+msgstr "Numai prima literă"
+
+msgid "Only The First Letter And After"
+msgstr "Numai prima literă și următoarea"
+
+msgid "Insert / Delete"
+msgstr "Inserați / Ștergeți"
+
+msgid "Insert"
+msgstr "Inserați"
+
+msgid "at position"
+msgstr "la poziția"
+
+msgid "Delete between"
+msgstr "Șterge între"
+
+msgid "and"
+msgstr "și"
+
+msgid "Replace / Remove"
+msgstr "Înlocuire / Eliminare"
+
+msgid "Replace"
+msgstr "Înlocuire"
+
+msgid "with"
+msgstr "cu"
+
+msgid "Case sensitive"
+msgstr "Litere identice"
+
+msgid "Regular expression"
+msgstr "Expresie obișnuită"
+
+msgid "Numerical"
+msgstr "Numeric"
+
+msgid "Add numbers starting at"
+msgstr "Adăugați cifre de la"
+
+msgid "and increment by"
+msgstr "et incrémente de"
+
+msgid "Insert before the numbers"
+msgstr "Introduceți înaintea numerelor"
+
+msgid "and after"
+msgstr "și după"
+
+msgid "Keep existing names"
+msgstr "Păstrează numele actuale"
+
+msgid "Before the numbers"
+msgstr "Înaintea numerelor"
+
+msgid "After the numbers"
+msgstr "După numere"
+
+msgid "No"
+msgstr "Nu"
+
+msgid "_Preview"
+msgstr "_Previzualizare"
+
+msgid "_Rename"
+msgstr "_Redenumire"
+
+msgid "_Undo"
+msgstr "A_nulare"
+
+msgid "Refre_sh"
+msgstr "Împro_spătare"
+
+msgid "Cannot rename because it already exist."
+msgstr "Nu se poate redenumi. Există deja."
+
+msgid "Cannot rename because the filename is too long."
+msgstr "Nu se poate redenumi. Numele este prea lung."
+
+msgid "The log file is over 1M, you should clear it from the Options menu."
+msgstr "Jurnalul este mai mare de 1MB, ar trebui curățat. Accesați meniul Opțiuni"
+
+msgid "Only show files or directories that contains"
+msgstr "Arată fișiere sau directoare care conțin"
+
+msgid "Clear"
+msgstr "Curăță"
+
+msgid "Trim spaces: Automatically trim double spaces to only one and remove spaces at the beginning or end of the names."
+msgstr "Înlătură spațiile: Înlătura automat spațiile duble și spațiile de la începutul și sfârșitul numelui."
+
+msgid "Zero auto-fill: For the Numerical section, 1 will be named 01 if you go up to 99 and 001 if you go up to 999 and so on."
+msgstr "Introduce un zero automat: Pentru secțiunea Numeric, 1 va fi redenumit 01 dacă merge până la 99 și 001 dacă merge până la 999 ș.a.m.d."
+
+msgid "Automatic preview: This option will be turned off automatically if there's more than 10,000 files or directories listed."
+msgstr "Previzualizare automată: Acestă opțiune va fi dezactivată automat dacă vor exista mai mult de 10,000 fișiere sau directoare afișate."
+
+msgid "Disable security check: If used, this can delete files after renaming, only use this when you rename case on a VFAT (Windows) partition."
+msgstr "Dezactivează securitatea: Dacă se folosește, poate șterge fișierele după redenumire. A se folosi doar pe partiții VFAT (Windows)."
+
+msgid "To specify the end, use a negative number or a high number."
+msgstr "Pentru a indica sfârșitul, utilizați nnumere negative sau numere mari."
+
+msgid "Backreferences with Regular expression cannot be use as $1 is considered a Perl variable."
+msgstr "Nu se pot folosi expresii deoarece $1 este considerată o variabilă Perl."

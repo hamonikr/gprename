@@ -1,3 +1,10 @@
+gprename (20230429+hamonikr1) stable; urgency=low
+
+  * New Upstream ver 20230429
+  * Release on ubuntu 22.04
+
+ -- HamoniKR <pkg@hamonikr.org>  Tue, 12 Sep 2023 10:15:48 +0900
+
 gprename (20140325-1hamonikr1) jin; urgency=low
 
   * Release for HamoniKR
