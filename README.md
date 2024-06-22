@@ -1,7 +1,7 @@
 ![hamonikr-sun](https://img.shields.io/badge/hamonikr-sun-green)
 ![hamonikr-jin](https://img.shields.io/badge/hamonikr-jin-violet)
 
-# hamonikr-gprename
+# gprename
 
 하모니카 사용자를 위한 파일명 또는 폴더명 일괄 변경 프로그램
 
@@ -20,19 +20,12 @@
 
 # Install
 
-## HamoniKR 사용자의 경우 HamoniKR-ME (>= 1.4)
-터미널을 열고(Ctrl+Alt+T) 아래 명령어를 입력하세요.
-
-```
-sudo apt update
-sudo apt install -y gprename
-```
-
-## Ubuntu, LinuxMint 등 다른 배포판 사용자의 경우 Ubuntu (>= 18.04), LinuxMint(>=19)
+## Ubuntu, Debian, LinuxMint
 터미널을 열고(Ctrl+Alt+T) 아래 명령어를 입력하세요.
 
 ```
 curl -sL https://pkg.hamonikr.org/add-hamonikr.apt | sudo -E bash -
+
 sudo apt install -y gprename
 ```
 
