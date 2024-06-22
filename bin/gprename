@@ -112,8 +112,12 @@ $settings{'show_hidden_files'}  = 0;
 &read_settings;
 
 # Override style for GtkTreeView to Courier New with fallback.
+# my $css_provider = Gtk3::CssProvider->new;
+# $css_provider->load_from_data("treeview { font-family: Courier New, Monospace; }", -1);
+
+# Remove any font-specific CSS style, using system defaults
 my $css_provider = Gtk3::CssProvider->new;
-$css_provider->load_from_data("treeview { font-family: Courier New, Monospace; }", -1);
+$css_provider->load_from_data("", -1);
 
 my $display = Gtk3::Gdk::Display::get_default();
 my $screen = $display->get_default_screen;
