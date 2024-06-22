@@ -1,3 +1,9 @@
+gprename (20230429+hamonikr2) stable; urgency=low
+
+  * Release on ubuntu 24.04
+
+ -- HamoniKR <pkg@hamonikr.org>  Sat, 22 Jun 2024 14:57:51 +0900
+
 gprename (20230429+hamonikr1) stable; urgency=low
 
   * New Upstream ver 20230429
